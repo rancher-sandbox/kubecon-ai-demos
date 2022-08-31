@@ -25,6 +25,7 @@
         <bpmn:flowNodeRef>Activity_01egolm</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1t11596</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0u5t1of</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1ci33cb</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_0ssvmm2">
         <bpmn:flowNodeRef>Activity_1i2qmyf</bpmn:flowNodeRef>
@@ -56,6 +57,7 @@
     <bpmn:task id="Activity_01egolm" name="Ship Devices" />
     <bpmn:task id="Activity_1t11596" name="Kubecon" />
     <bpmn:task id="Activity_0u5t1of" name="Submit BOM" />
+    <bpmn:task id="Activity_1ci33cb" name="Put Elemental Images On Everything" />
     <bpmn:textAnnotation id="TextAnnotation_19dtx2s">
       <bpmn:text>Pytorch, tensorflow, bitnami, (k8s support?)</bpmn:text>
     </bpmn:textAnnotation>
@@ -96,15 +98,11 @@
       <bpmndi:BPMNShape id="Participant_0pr4wi6_di" bpmnElement="Participant_0pr4wi6" isHorizontal="true">
         <dc:Bounds x="153" y="61" width="1630" height="569" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_0tk88wn_di" bpmnElement="Lane_0tk88wn" isHorizontal="true">
-        <dc:Bounds x="183" y="61" width="1600" height="279" />
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_0ssvmm2_di" bpmnElement="Lane_0ssvmm2" isHorizontal="true">
         <dc:Bounds x="183" y="340" width="1600" height="290" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="TextAnnotation_19dtx2s_di" bpmnElement="TextAnnotation_19dtx2s">
-        <dc:Bounds x="740" y="410" width="100" height="70" />
-        <bpmndi:BPMNLabel />
+      <bpmndi:BPMNShape id="Lane_0tk88wn_di" bpmnElement="Lane_0tk88wn" isHorizontal="true">
+        <dc:Bounds x="183" y="61" width="1600" height="279" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1pb5lvm">
         <dc:Bounds x="206" y="81" width="36" height="36" />
@@ -177,23 +175,31 @@
         <dc:Bounds x="270" y="206" width="100" height="80" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="TextAnnotation_19dtx2s_di" bpmnElement="TextAnnotation_19dtx2s">
+        <dc:Bounds x="740" y="410" width="100" height="70" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1ci33cb_di" bpmnElement="Activity_1ci33cb">
+        <dc:Bounds x="780" y="120" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Association_0bjgyp8_di" bpmnElement="Association_0bjgyp8">
         <di:waypoint x="728" y="490" />
         <di:waypoint x="740" y="478" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Group_0p6nn4e_di" bpmnElement="Group_0p6nn4e">
+        <dc:Bounds x="1613" y="92" width="153" height="199" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1662" y="99" width="55" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Group_0ttqbml_di" bpmnElement="Group_0ttqbml">
         <dc:Bounds x="200" y="420" width="380" height="200" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_1tar5ah" bpmnElement="Group_1kmw508">
-        <dc:Bounds x="755" y="93" width="150" height="195" />
+      <bpmndi:BPMNShape id="Group_1e6itcf_di" bpmnElement="Group_1e6itcf">
+        <dc:Bounds x="1445" y="96" width="150" height="195" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="796" y="100" width="70" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="BPMNShape_1ohy4qz" bpmnElement="Group_0iywmym">
-        <dc:Bounds x="1095" y="96" width="150" height="195" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1146" y="103" width="49" height="14" />
+          <dc:Bounds x="1493" y="103" width="55" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_07m0nqu" bpmnElement="Group_0pmwn70">
@@ -202,22 +208,22 @@
           <dc:Bounds x="1313" y="103" width="55" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Group_1e6itcf_di" bpmnElement="Group_1e6itcf">
-        <dc:Bounds x="1445" y="96" width="150" height="195" />
+      <bpmndi:BPMNShape id="BPMNShape_1ohy4qz" bpmnElement="Group_0iywmym">
+        <dc:Bounds x="1095" y="96" width="150" height="195" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1493" y="103" width="55" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Group_0p6nn4e_di" bpmnElement="Group_0p6nn4e">
-        <dc:Bounds x="1613" y="92" width="153" height="199" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="1662" y="99" width="55" height="14" />
+          <dc:Bounds x="1146" y="103" width="49" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_0wotgdt" bpmnElement="Group_1lhbsja">
         <dc:Bounds x="925" y="96" width="150" height="195" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="966" y="103" width="70" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1tar5ah" bpmnElement="Group_1kmw508">
+        <dc:Bounds x="755" y="93" width="150" height="195" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="796" y="100" width="70" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="BPMNShape_0p64hcw" bpmnElement="Group_0x3rgh9">
