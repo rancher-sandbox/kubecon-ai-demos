@@ -1,0 +1,10 @@
+name: game
+configuration:
+  instances: 1
+  configurations:
+  - mqtt
+  environment:
+    BP_NODE_RUN_SCRIPTS: build-client
+  routes:
+  - game-a279f.gracey.dev
+  appchart: standard
