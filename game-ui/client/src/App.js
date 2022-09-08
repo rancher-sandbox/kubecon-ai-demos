@@ -2,8 +2,14 @@ import { useEffect, useState } from 'react'
 
 import Player from './components/Player'
 import TimedDialog from './components/Dialog'
+import EventLog from './components/EventLog'
 import './App.css'
 
+try {
+    const socket = io("/admin");
+} catch(err){
+    console.log(err)
+}
 
 
 function App() { 
@@ -12,9 +18,34 @@ function App() {
 
     const [gameState, setGameState] = useState('WAITING_TO_START')
 
+
+    const [logs, setLog] = useState([])
+    console.log('logs', logs)
+
+    const appendLog = (line)=>{
+        console.log('oldLogs:', logs)
+        setLog((previousLogs)=>[...previousLogs, line])
+        console.log('newLogs:', logs)
+    }
+
     useEffect(()=>{
-        
-    })
+        console.log('setting up event stream')
+
+        const socket = io("/events");
+        socket.on('connect',()=>{
+            console.log('event stream connected')
+            appendLog('CONNECTED')
+        })
+        socket.on('disconnect',()=>{
+            console.log('event stream disconnected')
+            appendLog('DISCONNECTED')
+        })
+
+        socket.on('msg', (msg)=>{
+            console.log('MSG', msg)
+            appendLog(msg)
+        })
+    },[])
 
 
 
@@ -28,6 +59,7 @@ function App() {
             <Player name="Human" headerColor="red" score="0"></Player>
             <div className='vs'>VS</div>
             <Player name="Robot" headerColor="blue" score="0"></Player>
+            <EventLog logs={logs}/>
 
             <TimedDialog duration="5000" message="blah"/>
 
