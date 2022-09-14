@@ -1,6 +1,6 @@
 FROM aler9/rtsp-simple-server AS rtsp
-FROM alpine:3.12
+FROM alpine:3.16
 RUN apk add --no-cache ffmpeg
 COPY --from=rtsp /rtsp-simple-server /
-COPY k8s-config/configmap.yaml /rtsp-simple-server.yml 
+COPY k8s-config/looper-config.yaml /rtsp-simple-server.yml 
 ENTRYPOINT [ "/rtsp-simple-server" ]
