@@ -1,50 +1,42 @@
 import { useEffect, useState } from 'react'
 
-import Player from './components/Player'
-import TimedDialog from './components/Dialog'
-import EventLog from './components/EventLog'
+import Player from './components/Player.js'
+import TimedDialog from './components/Dialog.js'
+import EventLog from './components/EventLog.js'
 import './App.css'
 
-try {
-    const socket = io("/admin");
-} catch(err){
-    console.log(err)
-}
+import EventTranslator from './EventTranslator.js'
+
+// TODO should be passed in from backend
+const localVideoStreamURL = './cam.mp4'
 
 
 function App() { 
-    const [human_score, setHumanScore] = useState('-')
-    const [robot_score, setRobotScore] = useState('-')
-
-    const [gameState, setGameState] = useState('WAITING_TO_START')
-
-
     const [logs, setLog] = useState([])
-    console.log('logs', logs)
+    const [score, setScore] = useState({robot:'--', human:'--'})
+    const [message, setMessage] = useState({duration:3000, text:'Hello'})
+    const [gameState, setGameState] = useState('WAITING_TO_START')
+    const [systemState, setSystemState] = useState('UNKNOWN')
 
-    const appendLog = (line)=>{
-        console.log('oldLogs:', logs)
-        setLog((previousLogs)=>[...previousLogs, line])
-        console.log('newLogs:', logs)
-    }
 
+    // Set up the eventing system and state machine
     useEffect(()=>{
-        console.log('setting up event stream')
+        console.log('Setting up event stream')
 
         const socket = io("/events");
-        socket.on('connect',()=>{
-            console.log('event stream connected')
-            appendLog('CONNECTED')
-        })
-        socket.on('disconnect',()=>{
-            console.log('event stream disconnected')
-            appendLog('DISCONNECTED')
+        const fsm = new EventTranslator(socket, {score, gameState, systemState})
+
+        fsm.on('score', (msg)=>{setScore(msg)})
+        fsm.on('gameState', (msg)=>{setGameState(msg)})
+        fsm.on('systemState', (msg)=>{setSystemState(msg)})
+        fsm.on('prompt', (msg)=>{setMessage(msg)})
+
+        fsm.on('log', (line)=>{
+            setLog((previousLogs)=>[...previousLogs, line])
         })
 
-        socket.on('msg', (msg)=>{
-            console.log('MSG', msg)
-            appendLog(msg)
-        })
+        fsm.init()
+        
     },[])
 
 
@@ -56,14 +48,23 @@ function App() {
                 <h2>Wave to start a count down then play against the computer!</h2>
             </header>
 
-            <Player name="Human" headerColor="red" score="0"></Player>
-            <div className='vs'>VS</div>
-            <Player name="Robot" headerColor="blue" score="0"></Player>
+            <div class="center">
+                <Player name="Human" headerColor="#2453ff" score={score.human}>
+                    <video autoplay>
+                        <source scr={localVideoStreamURL} type="video/mp4"/>
+                    </video>
+                </Player>
+
+
+                <div className='vs'>VS</div>
+                
+                
+                <Player name="Robot" headerColor="#fe7c3f" score={score.robot}>
+                </Player>
+            </div>
             <EventLog logs={logs}/>
 
-            <TimedDialog duration="5000" message="blah"/>
-
-            <div className='instructions'>Instructions go here</div>
+            <TimedDialog duration={message.duration} message={message.text}/>
         </div>
     )
 }

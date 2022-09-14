@@ -47,13 +47,21 @@
 }
 
 
-.name{
+.name {
     float: left;
-    padding: 4px;
+    padding: 12px;
 }
 .score {
     float: right;
-    padding: 4px;
+    padding: 12px;
+}
+
+
+.event-log {
+    clear: both;
+}
+.event-log > header {
+    border-bottom: 1px inset black;
 }
 
 
@@ -72,4 +80,9 @@ dialog {
     font-family: sans-serif;
 
     transition: open 2s;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
 }
