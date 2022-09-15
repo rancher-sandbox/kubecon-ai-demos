@@ -180,3 +180,4 @@ paths:
     runOnInit: ffmpeg -f rtsp -i rtsp://localhost:8554/rps -pix_fmt yuv420p -preset ultrafast -b:v 200k -f v4l2 /dev/video2 
     runOnInitRestart: yes
   rps:
+  

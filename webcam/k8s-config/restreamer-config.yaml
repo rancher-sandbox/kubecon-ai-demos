@@ -71,19 +71,19 @@ protocols: [udp, multicast, tcp]
 # Available values are "no", "strict", "optional".
 encryption: "no"
 # Address of the TCP/RTSP listener. This is needed only when encryption is "no" or "optional".
-rtspAddress: :8554
+rtspAddress: :9554
 # Address of the TCP/TLS/RTSPS listener. This is needed only when encryption is "strict" or "optional".
-rtspsAddress: :8322
+rtspsAddress: :9322
 # Address of the UDP/RTP listener. This is needed only when "udp" is in protocols.
-rtpAddress: :8000
+rtpAddress: :9000
 # Address of the UDP/RTCP listener. This is needed only when "udp" is in protocols.
-rtcpAddress: :8001
+rtcpAddress: :9001
 # IP range of all UDP-multicast listeners. This is needed only when "multicast" is in protocols.
 multicastIPRange: 224.1.0.0/16
 # Port of all UDP-multicast/RTP listeners. This is needed only when "multicast" is in protocols.
-multicastRTPPort: 8002
+multicastRTPPort: 9002
 # Port of all UDP-multicast/RTCP listeners. This is needed only when "multicast" is in protocols.
-multicastRTCPPort: 8003
+multicastRTCPPort: 9003
 # Path to the server key. This is needed only when encryption is "strict" or "optional".
 # This can be generated with:
 # openssl genrsa -out server.key 2048
@@ -100,12 +100,12 @@ authMethods: [basic, digest]
 # Disable support for the RTMP protocol.
 rtmpDisable: no
 # Address of the RTMP listener. This is needed only when encryption is "no" or "optional".
-rtmpAddress: :1935
+rtmpAddress: :2935
 # Encrypt connections with TLS (RTMPS).
 # Available values are "no", "strict", "optional".
 rtmpEncryption: "no"
 # Address of the RTMPS listener. This is needed only when encryption is "strict" or "optional".
-rtmpsAddress: :1936
+rtmpsAddress: :2936
 # Path to the server key. This is needed only when encryption is "strict" or "optional".
 # This can be generated with:
 # openssl genrsa -out server.key 2048
@@ -120,7 +120,7 @@ rtmpServerCert: server.crt
 # Disable support for the HLS protocol.
 hlsDisable: no
 # Address of the HLS listener.
-hlsAddress: :8888
+hlsAddress: :9888
 # By default, HLS is generated only when requested by a user.
 # This option allows to generate it always, avoiding the delay between request and generation.
 hlsAlwaysRemux: no
@@ -177,7 +177,7 @@ hlsTrustedProxies: []
 # another entry.
 paths:
   cam:
-    runOnInit: ffmpeg -f v4l2 -i /dev/video0 -pix_fmt yuv420p -preset ultrafast -b:v 600k -f rtsp rtsp://localhost:8554/rps
+    runOnInit: ffmpeg -f v4l2 -i /dev/video2 -pix_fmt yuv420p -preset ultrafast -b:v 600k -f rtsp rtsp://localhost:9554/rps
     runOnInitRestart: yes
   rps:
   
