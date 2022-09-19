@@ -31,7 +31,7 @@ console.log(mqttClient)
 
 mqttClient.on('connect', () => {
   console.log('SUBSCRIBING TO MQTT')
-  mqttClient.subscribe('game/#', (err) => {
+  mqttClient.subscribe('#', (err) => {
     if (!!err) {
       console.error('ERROR MQTT SUB', err)
       process.exit()
