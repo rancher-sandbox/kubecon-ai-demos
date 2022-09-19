@@ -26,8 +26,6 @@ httpServer.listen(process.env.PORT || 8080, () => {
 // MQTT
 const mqttClient = mqtt.connect(mqtt_url, {username, password})
 
-console.log(mqttClient)
-
 
 mqttClient.on('connect', () => {
   console.log('SUBSCRIBING TO MQTT')
@@ -54,3 +52,31 @@ mqttClient.on('message', (topic, message)=>{
     message: message.toString()
   }))
 })
+
+
+app.get('/runtest',async (req,res)=>{
+  res.send("Running Test")
+
+  const endMsg = JSON.stringify({
+    winner: "human",
+    humanPlay: "rock",
+    robotPlay: "paper"
+  })
+
+  mqttClient.publish('round/start',"")
+
+  await publishAfterTime('round/countdown',"3", 1000)
+  await publishAfterTime('round/countdown',"2", 1000)
+  await publishAfterTime('round/countdown',"1", 1000)
+  await publishAfterTime('round/end', endMsg, 1000)
+})
+
+
+const publishAfterTime = (topic, msg, delay)=>{
+  return new Promise((resolve)=>{
+    setTimeout(()=>{
+      mqttClient.publish(topic, msg)
+      resolve()
+    },delay)
+  })
+}

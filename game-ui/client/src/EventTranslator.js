@@ -93,12 +93,13 @@ class EventTranslator extends EventEmitter {
             case 'start':
                 this.sendPrompt('Round Starting', 1000)
                 break;
+
             case 'countdown':
-                
+                this.sendPrompt(message, 750)
                 break;
 
             case 'end':
-                const {winner} = JSON.parse(message)
+                const {winner, robotPlay, humanPlay} = JSON.parse(message)
                 const scores = JSON.parse(JSON.stringify(this.score))
 
                 if (winner == 'human') {
@@ -107,7 +108,11 @@ class EventTranslator extends EventEmitter {
                     scores.robot = scores.robot + 1
                 }
 
+                this.emit('robotPlay', robotPlay)
                 this.emit('score', scores)
+
+                // TODO emit prompt of "blah beats blah"
+
                 break;
         }
     }
@@ -118,6 +123,7 @@ class EventTranslator extends EventEmitter {
     onSystemMessage(topicArr, message){
         switch(topicArr[1]) {
             case 'init':
+
                 break;
         }
     }
@@ -126,14 +132,6 @@ class EventTranslator extends EventEmitter {
         console.log('Sending Prompt')
         this.emit('prompt', {text, duration})
     }
-
-
-
-
-
-
-
-
 }
 
 

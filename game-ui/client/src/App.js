@@ -13,10 +13,11 @@ const localVideoStreamURL = './cam.mp4'
 
 function App() { 
     const [logs, setLog] = useState([])
-    const [score, setScore] = useState({robot:'--', human:'--'})
+    const [score, setScore] = useState({robot: 0, human: 0})
     const [message, setMessage] = useState({duration:3000, text:'Hello'})
     const [gameState, setGameState] = useState('WAITING_TO_START')
     const [systemState, setSystemState] = useState('UNKNOWN')
+    const [robotPlay, setRobotPlay] = useState('Nothing yet')
 
 
     // Set up the eventing system and state machine
@@ -27,6 +28,7 @@ function App() {
         const fsm = new EventTranslator(socket, {score, gameState, systemState})
 
         fsm.on('score', (msg)=>{setScore(msg)})
+        fsm.on('robotPlay', (msg)=>{setRobotPlay(msg)})
         fsm.on('gameState', (msg)=>{setGameState(msg)})
         fsm.on('systemState', (msg)=>{setSystemState(msg)})
         fsm.on('prompt', (msg)=>{setMessage(msg)})
@@ -60,6 +62,7 @@ function App() {
                 
                 
                 <Player name="Robot" headerColor="#fe7c3f" score={score.robot}>
+                    Robot Played {robotPlay}
                 </Player>
             </div>
             <EventLog logs={logs}/>
