@@ -3,9 +3,14 @@ import { useEffect, useState } from 'react'
 import Player from './components/Player.js'
 import TimedDialog from './components/Dialog.js'
 import EventLog from './components/EventLog.js'
+import HLS from './components/HLS.js'
+import RobotPlay from './components/RobotPlay.js'
 import './App.css'
 
 import EventTranslator from './EventTranslator.js'
+
+import { connect } from 'nats.ws'
+
 
 // TODO should be passed in from backend
 const localVideoStreamURL = './cam.mp4'
@@ -41,8 +46,6 @@ function App() {
         
     },[])
 
-
-
     return (
         <div className="app">
             <header>
@@ -52,17 +55,13 @@ function App() {
 
             <div class="center">
                 <Player name="Human" headerColor="#2453ff" score={score.human}>
-                    <video autoplay>
-                        <source scr={localVideoStreamURL} type="video/mp4"/>
-                    </video>
+                    <HLS scr={localVideoStreamURL} />
                 </Player>
-
 
                 <div className='vs'>VS</div>
                 
-                
                 <Player name="Robot" headerColor="#fe7c3f" score={score.robot}>
-                    Robot Played {robotPlay}
+                    <RobotPlay move={robotPlay} />
                 </Player>
             </div>
             <EventLog logs={logs}/>
