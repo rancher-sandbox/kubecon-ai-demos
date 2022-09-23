@@ -3,11 +3,12 @@ import { createServer } from "http"
 import { Server } from "socket.io"
 import * as mqtt from 'mqtt'
 
+import { connect, StringCodec } from 'nats'
+const sc = StringCodec();
+
 // Read configuration
 import { readFileSync } from 'fs'
 const mqtt_url = readFileSync('/configurations/mqtt/url', 'utf8')
-const username = readFileSync('/configurations/mqtt/username', 'utf8')
-const password = readFileSync('/configurations/mqtt/password', 'utf8')
 
 
 // HTTP & Websocket Server
@@ -22,21 +23,11 @@ httpServer.listen(process.env.PORT || 8080, () => {
   console.log('Listening')
 })
 
-
 // MQTT
-const mqttClient = mqtt.connect(mqtt_url, {username, password})
-
+const mqttClient = mqtt.connect(`mqtt://${mqtt_url}`)
 
 mqttClient.on('connect', () => {
-  console.log('SUBSCRIBING TO MQTT')
-  mqttClient.subscribe('#', (err) => {
-    if (!!err) {
-      console.error('ERROR MQTT SUB', err)
-      process.exit()
-    } else {
-      console.log('MQTT SUBSCRIBE')
-    }
-  })
+  console.log('CONNECTED TO MQTT')
 })
 
 mqttClient.on('error', (err)=>{
@@ -44,19 +35,17 @@ mqttClient.on('error', (err)=>{
 })
 
 
-mqttClient.on('message', (topic, message)=>{
-  // message is Buffer
-  console.log('Message: ',topic, " -- ",message.toString())
-  events.emit('msg', JSON.stringify({
-    topic, 
-    message: message.toString()
-  }))
-})
-
-
+// For testing endpoint 
+const publishAfterTime = (topic, msg, delay)=>{
+  return new Promise((resolve)=>{
+    setTimeout(()=>{
+      mqttClient.publish(topic, msg)
+      resolve()
+    },delay)
+  })
+}
+// Testing endpoint 
 app.get('/runtest',async (req,res)=>{
-  res.send("Running Test")
-
   const endMsg = JSON.stringify({
     winner: "human",
     humanPlay: "rock",
@@ -72,11 +61,26 @@ app.get('/runtest',async (req,res)=>{
 })
 
 
-const publishAfterTime = (topic, msg, delay)=>{
-  return new Promise((resolve)=>{
-    setTimeout(()=>{
-      mqttClient.publish(topic, msg)
-      resolve()
-    },delay)
-  })
+// Setup NATS 
+try{
+  const natsClient = await connect({servers:[mqtt_url]})
+
+  const sub = natsClient.subscribe('>')
+
+  // WTF is this pattern...
+  // From https://github.com/nats-io/nats.js/blob/main/examples/nats-sub.js
+  (async()=>{
+    for await (const m of sub) {
+      const topic = m.subject
+      const message = sc.decode(m.data)
+      console.log(`[${sub.getProcessed()}]: ${topic}: ${message}`);
+      events.emit('msg', JSON.stringify({
+        topic, 
+        message
+      }))
+    }
+  })().then() 
+
+} catch(err) {
+  console.error(err)
 }

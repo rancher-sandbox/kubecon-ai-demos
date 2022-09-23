@@ -32,7 +32,7 @@ class EventTranslator extends EventEmitter {
     init(){
         this.events.on('msg', (msg)=>{
             const {topic, message} = JSON.parse(msg)
-            const topicArr = topic.split('/')
+            const topicArr = topic.split(/[/.]/ig)
 
             this.onMessage(topicArr, message)
         })

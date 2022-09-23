@@ -9,25 +9,32 @@ import './App.css'
 
 import EventTranslator from './EventTranslator.js'
 
-import { connect } from 'nats.ws'
+// import { connect } from 'nats.ws'
 
 
 // TODO should be passed in from backend
-const localVideoStreamURL = './cam.mp4'
+const localVideoStreamURL = '//cam.mp4'
 
 
 function App() { 
     const [logs, setLog] = useState([])
     const [score, setScore] = useState({robot: 0, human: 0})
-    const [message, setMessage] = useState({duration:3000, text:'Hello'})
+    const [message, setMessage] = useState({duration:0, text:'Wave to start a count down then play against the computer!'})
     const [gameState, setGameState] = useState('WAITING_TO_START')
     const [systemState, setSystemState] = useState('UNKNOWN')
     const [robotPlay, setRobotPlay] = useState('Nothing yet')
 
 
     // Set up the eventing system and state machine
-    useEffect(()=>{
+    useEffect(async ()=>{
         console.log('Setting up event stream')
+
+        // try {
+        //     const sock = await connect({servers:[window.location.host]})
+        //     console.log(sock)
+        // } catch (err){
+        //     console.error(err)
+        // }
 
         const socket = io("/events");
         const fsm = new EventTranslator(socket, {score, gameState, systemState})

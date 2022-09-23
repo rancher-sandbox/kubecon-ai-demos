@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import Hls from 'hls.js'
 
 // Adapted from https://github.com/devcshort/react-hls/blob/master/src/index.tsx
