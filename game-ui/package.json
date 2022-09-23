@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {  
+  "scripts": {
     "start": "node server.mjs",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-client": "cd client; npm i; npm run build; cd -;"
@@ -13,6 +13,7 @@
   "dependencies": {
     "express": "^4.17.1",
     "mqtt": "^4.3.7",
+    "nats": "^2.7.1",
     "socket.io": "^4.5.2"
   }
 }

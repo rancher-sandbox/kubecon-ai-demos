@@ -3,8 +3,8 @@
 function PlayerFrame(props) { 
 
     return (
-        <div className="player-frame" style={{backgroundColor: props.color}}>
-            <header>
+        <div className="player-frame">
+            <header style={{backgroundColor: props.headerColor}}>
                 <span className="name">{props.name}</span>
                 <span className="score">{props.score}</span>
             </header>
