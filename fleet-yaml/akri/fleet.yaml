@@ -1,0 +1,12 @@
+defaultNamespace: akri
+helm:
+  chart: akri-dev
+  repo: https://project-akri.github.io/akri/
+  releaseName: akri
+  values:
+    kubernetesDistro: k3s
+    udev:
+      discovery:
+        enabled: true
+        host:
+          udev: /run/udev

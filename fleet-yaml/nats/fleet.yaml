@@ -1,0 +1,15 @@
+defaultNamespace: akri
+helm:
+  chart: nats
+  repo: https://nats-io.github.io/k8s/helm/charts/
+  releaseName: nats
+  values:
+    mqtt:
+      enabled: true
+    nats:
+      jetstream:
+        enabled: true
+    websocket:
+      enabled: true
+
+      

@@ -1,0 +1,40 @@
+apiVersion: akri.sh/v0
+kind: Configuration
+metadata:
+  name: udev-camera
+  namespace: akri
+spec:
+  brokerProperties: {}
+  brokerSpec:
+    brokerPodSpec:
+      containers:
+      - image: mak3r/streamer:latest
+        name: udev-camera-broker
+        resources:
+          limits:
+            '{{PLACEHOLDER}}': "1"
+            cpu: 300m
+            memory: 300Mi
+          requests:
+            '{{PLACEHOLDER}}': "1"
+            cpu: 100m
+            memory: 100Mi
+        securityContext:
+          privileged: true
+  capacity: 1
+  configurationServiceSpec:
+    ports:
+    - name: rtsp
+      port: 8554
+      protocol: TCP
+      targetPort: 8554
+    - name: hls
+      port: 8888
+      protocol: TCP
+      targetPort: 8888
+    type: ClusterIP
+  discoveryHandler:
+    discoveryDetails: |
+      udevRules:
+      - KERNEL=="video0"
+    name: udev
