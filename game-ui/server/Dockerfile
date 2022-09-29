@@ -5,6 +5,6 @@ RUN npm i
 
 COPY . .
 
-RUN npm run build-client
-
 EXPOSE 8080
+
+CMD node server.mjs
