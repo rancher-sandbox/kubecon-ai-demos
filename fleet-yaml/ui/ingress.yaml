@@ -29,12 +29,11 @@ spec:
             name: game-testserver
             port: 
               name: http
-      - path: /rps/master.m3u8
-        pathType: Exact
+      - path: /rps/
+        pathType: Prefix
         backend:
           service:
             name: udev-camera-svc
             port: 
               number: 8888
-              
               

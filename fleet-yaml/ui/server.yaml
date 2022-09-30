@@ -23,7 +23,7 @@ spec:
         - name: NATS_URL
           value: nats.nats
         - name: CAMERA_URL
-          value: 'http://rps.192.168.1.15.sslip.io/rps/master.m3u8'
+          value: '/rps/master.m3u8'
         ports:
         - containerPort: 8080
           name: http

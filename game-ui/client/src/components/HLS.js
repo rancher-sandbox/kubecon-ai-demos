@@ -6,8 +6,9 @@ import Hls from 'hls.js'
 const hlsConfig = {
     maxLoadingDelay: 4,
     minAutoBitrate: 0,
+    maxLiveSyncPlaybackRate: 1.5,
     lowLatencyMode: true,
-    enableWorker: false
+    enableWorker: true
 }
 const autoPlay = true
 
