@@ -236,6 +236,6 @@ data:
     # another entry.
     paths:
       cam:
-        runOnInit: ffmpeg -f v4l2 -i /dev/video0 -pix_fmt yuv420p -preset ultrafast -b:v 600k -c:a aac -f rtsp rtsp://localhost:8554/rps
+        runOnInit: ffmpeg -f v4l2 -i /dev/video0 -pix_fmt yuv420p -preset ultrafast -b:v 600k -c:v h264 -c:a aac -f rtsp rtsp://localhost:8554/rps
         runOnInitRestart: yes
       rps:

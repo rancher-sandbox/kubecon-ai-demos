@@ -15,7 +15,6 @@ function App() {
     const [score, setScore] = useState({robot: 0, human: 0})
     const [message, setMessage] = useState({duration:0, text:'Wave to start a count down then play against the computer!'})
     const [gameState, setGameState] = useState('WAITING_TO_START')
-    const [localVideoStreamURL, setLocalVideoStreamURL] = useState(window.location.protocol+'//'+window.location.hostname+'/rps/master.m3u8')
     const [robotPlay, setRobotPlay] = useState('Nothing yet')
 
 
@@ -31,12 +30,11 @@ function App() {
         // }
 
         const socket = io("/events");
-        const fsm = new EventTranslator(socket, {score, gameState, setLocalVideoStreamURL})
+        const fsm = new EventTranslator(socket, {score, gameState})
 
         fsm.on('score', (msg)=>{setScore(msg)})
         fsm.on('robotPlay', (msg)=>{setRobotPlay(msg)})
         fsm.on('gameState', (msg)=>{setGameState(msg)})
-        fsm.on('systemState', (msg)=>{setSystemState(msg)})
         fsm.on('prompt', (msg)=>{setMessage(msg)})
 
         fsm.on('log', (line)=>{
@@ -56,7 +54,7 @@ function App() {
 
             <div class="center">
                 <Player name="Human" headerColor="#2453ff" score={score.human}>
-                    <HLS src={localVideoStreamURL} />
+                    <HLS src='/rps/index.m3u8' />
                 </Player>
 
                 <div className='vs'>VS</div>

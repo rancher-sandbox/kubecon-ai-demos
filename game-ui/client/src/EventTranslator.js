@@ -19,14 +19,12 @@ class EventTranslator extends EventEmitter {
 
     constructor(events, {
         score, 
-        gameState, 
-        setLocalVideoStreamURL
+        gameState
     }) {
         super()
         this.events = events
         this.score = score
         this.gameState = gameState
-        this.setLocalVideoStreamURL = setLocalVideoStreamURL
     }
 
     init(){
@@ -123,7 +121,7 @@ class EventTranslator extends EventEmitter {
     onSystemMessage(topicArr, message){
         switch(topicArr[1]) {
             case 'videoSrc':
-                setLocalVideoStreamURL(message)
+                this.emit('videoSrc', message)
                 break;
         }
     }
