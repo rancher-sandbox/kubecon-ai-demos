@@ -11,13 +11,10 @@ const nats_url = process.env.NATS_URL
 const app = express()
 
 const httpServer = createServer(app)
+
 const io = new Server(httpServer)
 const events = io.of("/events")
 
-if (process.env)
-io.on('connect', (socket)=>{
-  socket.emit('system/videoSrc', process.env.CAMERA_URL)
-})
 
 httpServer.listen(process.env.PORT || 8080, () => {
   console.log('Listening')

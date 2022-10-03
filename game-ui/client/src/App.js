@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import Player from './components/Player.js'
 import TimedDialog from './components/Dialog.js'
 import EventLog from './components/EventLog.js'
-import HLS from './components/HLS.js'
+import RTSP from './components/RTSP.js'
 import RobotPlay from './components/RobotPlay.js'
 import './App.css'
 
@@ -54,7 +54,7 @@ function App() {
 
             <div class="center">
                 <Player name="Human" headerColor="#2453ff" score={score.human}>
-                    <HLS src='/rps/index.m3u8' />
+                    <RTSP src='/rps/index.m3u8' />
                 </Player>
 
                 <div className='vs'>VS</div>

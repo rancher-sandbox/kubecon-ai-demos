@@ -1,0 +1,17 @@
+{
+  "name": "game-ui-rtsp-link",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "express": "^4.17.1",
+    "express-ws": "^5.0.2",
+    "rtsp-relay": "^1.6.1"
+  }
+}

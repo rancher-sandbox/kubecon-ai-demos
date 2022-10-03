@@ -3,25 +3,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: game-server
-  name: game-server
+    app: rtsp-server
+  name: rtsp-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: game-server
+      app: rtsp-server
   template:
     metadata:
       labels:
-        app: game-server
+        app: rtsp-server
     spec:
       containers:
-      - name: game-server
-        image: atgracey/game-ui-server:latest
+      - name: rtsp-server
+        image: atgracey/game-ui-server-rtsp:latest
         command: ['node', 'server.mjs']
-        env: 
-        - name: NATS_URL
-          value: nats.nats
         ports:
         - containerPort: 8080
           name: http
@@ -29,7 +26,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: game-server
+  name: rtsp-server
 spec:
   type: ClusterIP
   ports:
@@ -38,4 +35,4 @@ spec:
     protocol: TCP
     targetPort: 8080
   selector:
-    app: game-server
+    app: rtsp-server
