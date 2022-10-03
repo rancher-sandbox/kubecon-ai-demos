@@ -29,11 +29,10 @@ spec:
             name: game-testserver
             port: 
               name: http
-      - path: /rps/
+      - path: /stream
         pathType: Prefix
         backend:
           service:
-            name: udev-camera-svc
+            name: rtsp-server
             port: 
-              number: 8888
-              
+              number: 8080

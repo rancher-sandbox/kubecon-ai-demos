@@ -12,7 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
+    "express-ws": "^5.0.2",
     "nats": "^2.7.1",
+    "rtsp-relay": "^1.6.1",
     "socket.io": "^4.5.2"
   }
 }
