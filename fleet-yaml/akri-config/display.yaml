@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: display-discover-daemonset
+  namespace: akri
+spec:
+  selector:
+    matchLabels:
+      name: display-discover
+  template:
+    metadata:
+      labels:
+        name: display-discover
+    spec:
+      containers:
+      - env:
+        - name: DISCOVERY_HANDLERS_DIRECTORY
+          value: /var/lib/akri
+        image: atgracey/display-discover:latest
+        name: display-discover
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/akri
+          name: discovery-handlers
+      volumes:
+      - hostPath:
+          path: /var/lib/akri
+        name: discovery-handlers
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: xconfig
+  namespace: akri
+data:
+  .xinitrc: |- 
+    #!/bin/bash
+    set -x
+    
+    xset -dpms
+    xset s off
+    xset s noblank
+    xhost +
+    exec startlxde
+---
+apiVersion: akri.sh/v0
+kind: Configuration
+metadata:
+  name: udev-camera
+  namespace: akri
+spec:
+  brokerProperties: {}
+  brokerSpec:
+    brokerPodSpec:
+      containers:
+        - name: wallboard
+          args:
+            - '-c'
+            - chromium http://game-client:8080 --start-fullscreen --disable-session-crashed-bubble --disable-infobars --disable-new-profile-management --no-sandbox -autoplay-policy=no-user-gesture-required
+          command:
+            - sh
+          env:
+            - name: DBUS_SESSION_BUS_ADDRESS
+              value: unix:path=/run/user/0/bus
+            - name: DISPLAY
+              value: ':0'
+          image: registry.opensuse.org/home/atgracey/wallboardos/15.4/chromium:withgtk
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: true
+            privileged: true
+            readOnlyRootFilesystem: false
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /home/user/
+              name: home
+            - mountPath: /root/
+              name: home
+            - mountPath: /run/user
+              name: runuser
+        - name: x11
+          args:
+            - '-c'
+            - |
+              startx -- -nocursor
+          command:
+            - /bin/bash
+          env:
+            - name: DBUS_SESSION_BUS_ADDRESS
+              value: unix:path=/run/user/0/bus
+          image: registry.opensuse.org/home/atgracey/wallboardos/15.4/wallboardos:lxde-15.4
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: true
+            privileged: true
+            readOnlyRootFilesystem: false
+          volumeMounts:
+            - mountPath: /run/user
+              name: runuser
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /root
+              name: home
+            - mountPath: /root/.xinitrc
+              name: xconfig
+              subPath: .xinitrc
+      dnsPolicy: ClusterFirst
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - hostPath:
+            path: /run/user
+            type: Directory
+          name: runuser
+        - name: tmp
+          emptyDir: {}
+        - name: home
+          emptyDir: {}
+        - configMap:
+            defaultMode: 0777
+            name: xconfig
+            items:
+              - key: .xinitrc
+                path: .xinitrc
+          name: xconfig
+  capacity: 1
+  discoveryHandler:
+    name: display
