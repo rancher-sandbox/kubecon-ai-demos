@@ -8,7 +8,7 @@ spec:
   brokerSpec:
     brokerPodSpec:
       containers:
-      - image: mak3r/gstreamer:latest
+      - image: atgracey/gstreamer:latest
         name: udev-camera-broker
         resources:
           limits:
