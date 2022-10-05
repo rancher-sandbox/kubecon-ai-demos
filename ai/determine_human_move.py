@@ -2,7 +2,7 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import asyncio
-import nats
+from nats.aio.client import Client as NATS
 from nats.errors import ConnectionClosedError, TimeoutError, NoServersError
 
 max_num_hands = 1
@@ -13,9 +13,24 @@ gesture = {
 rps_gesture = {0: 'rock', 5: 'paper', 9: 'scissors'}
 
 
-async def main():
-    print("Connecting to NATS")
-    nc = await nats.connect("nats://host.docker.internal:4222")
+
+
+async def run(loop):
+    nc = NATS()
+
+    async def disconnected_cb():
+        print("Got disconnected...")
+
+    async def reconnected_cb():
+        print("Got reconnected...")
+
+    await nc.connect(
+                     reconnected_cb=reconnected_cb,
+                     disconnected_cb=disconnected_cb,
+                     max_reconnect_attempts=-1)
+
+
+    # Do something with the connection.
 
     # MediaPipe hands model
     mp_hands = mp.solutions.hands
@@ -73,10 +88,17 @@ async def main():
 
                 # Draw gesture result
                 if idx in rps_gesture.keys():
-                    cv2.putText(img, text=rps_gesture[idx].upper(),
+                    human_move = rps_gesture[idx].upper()
+                    try:
+                        response = await nc.publish("human_move", human_move.encode("utf-8"))
+                        print(human_move, response)
+                    except Exception as e:
+                        print("Error:", e)
+                    await nc.flush()
+                    cv2.putText(img, text=human_move,
                                 org=(int(res.landmark[0].x * img.shape[1]), int(res.landmark[0].y * img.shape[0] + 20)),
                                 fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(255, 255, 255), thickness=2)
-
+                    
                 mp_drawing.draw_landmarks(img, res, mp_hands.HAND_CONNECTIONS)
 
         cv2.imshow('Game', img)
@@ -86,4 +108,7 @@ async def main():
     await nc.drain()
 
 if __name__ == '__main__':
-    asyncio.run(main())
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(run(loop))
+    loop.run_forever()
+    loop.close()
