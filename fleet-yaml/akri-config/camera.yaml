@@ -10,6 +10,7 @@ spec:
       containers:
       - image: atgracey/gstreamer:latest
         name: udev-camera-broker
+        command: ['/rtsp-simple-server']
         resources:
           limits:
             '{{PLACEHOLDER}}': "1"
