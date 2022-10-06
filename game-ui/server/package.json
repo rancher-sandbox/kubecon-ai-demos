@@ -12,9 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "mqtt": "^4.3.7",
+    "express-ws": "^5.0.2",
     "nats": "^2.7.1",
-    "socket.io": "^4.5.2",
-    "@ffmpeg-installer/linux-x64": "4.1.0"
+    "rtsp-relay": "^1.6.1",
+    "socket.io": "^4.5.2"
   }
 }

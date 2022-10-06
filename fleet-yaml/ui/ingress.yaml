@@ -1,0 +1,38 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: game-ui
+spec:
+  rules:
+  - host: rps.192.168.1.15.sslip.io
+    http:
+      paths:
+      - path: /socket.io
+        pathType: Prefix
+        backend:
+          service:
+            name: game-server
+            port: 
+              name: http
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: game-client
+            port: 
+              name: http
+      - path: /runtest
+        pathType: Exact
+        backend:
+          service:
+            name: game-testserver
+            port: 
+              name: http
+      - path: /stream
+        pathType: Prefix
+        backend:
+          service:
+            name: rtsp-server
+            port: 
+              number: 8080

@@ -5,13 +5,30 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build-webpack": "webpack --mode='development'",
     "build": "react-scripts build"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "hls.js": "^1.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "rtsp-relay": "^1.6.1"
+  },
+  "devDependencies": {
     "react-scripts": "5.0.1"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

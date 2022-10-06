@@ -1,0 +1,38 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: rtsp-server
+  name: rtsp-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rtsp-server
+  template:
+    metadata:
+      labels:
+        app: rtsp-server
+    spec:
+      containers:
+      - name: rtsp-server
+        image: atgracey/game-ui-server-rtsp:latest
+        command: ['node', 'server.mjs']
+        ports:
+        - containerPort: 8080
+          name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rtsp-server
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: rtsp-server
