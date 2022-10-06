@@ -10,7 +10,7 @@ ____
 Run RPS detection
 Detects what move the user made and publishes it to the NATS subject 'human_move'
 ```
-python3 determine_human_move.py
+docker run --network=host  sanjayrancher/rps-move-detector rtsp://localhost:8554/rps nats://localhost:4222
 ```
 
 ___
