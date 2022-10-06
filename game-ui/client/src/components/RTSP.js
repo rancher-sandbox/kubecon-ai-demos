@@ -11,13 +11,10 @@ function RTSP({
     useEffect(() => {
       loadPlayer({
         url: src,
-        canvas: playerCamRef.current,
-      
-        // optional
-        onDisconnect: () => console.log('Connection lost!'),
+        canvas: playerCamRef.current
       })
 
-    }, [playerCamRef, src]);
+    }, [playerCamRef, src])
 
     return <canvas ref={playerCamRef} {...props} className="camera" />
 }
