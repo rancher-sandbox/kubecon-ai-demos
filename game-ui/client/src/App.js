@@ -17,7 +17,7 @@ function App() {
     const [score, setScore] = useState({robot: 0, human: 0})
     const [message, setMessage] = useState({duration:0, text:'Wave to start a count down then play against the computer!'})
     const [gameState, setGameState] = useState('WAITING_TO_START')
-    const [robotPlay, setRobotPlay] = useState('Nothing yet')
+    const [robotPlay, setRobotPlay] = useState('')
 
     // Set up the eventing system and state machine
     useEffect(async ()=>{
