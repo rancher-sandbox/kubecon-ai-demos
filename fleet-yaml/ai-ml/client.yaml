@@ -1,0 +1,21 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: rps-move-detector
+  name: rps-move-detector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rps-move-detector
+  template:
+    metadata:
+      labels:
+        app: rps-move-detector
+    spec:
+      containers:
+      - name: rps-move-detector
+        image: sanjayrancher/rps-move-detector
+        args: ['rtsp://rtsp-server:8554/rps', 'nats://nats.nats:4222']
