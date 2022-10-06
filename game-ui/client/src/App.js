@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, memo } from 'react'
+import './App.css'
 
-import Player from './components/Player.js'
 import TimedDialog from './components/Dialog.js'
 import EventLog from './components/EventLog.js'
 import RTSP from './components/RTSP.js'
+
+import Player from './components/Player.js'
 import RobotPlay from './components/RobotPlay.js'
-import './App.css'
+
 
 import EventTranslator from './EventTranslator.js'
 
@@ -17,20 +19,13 @@ function App() {
     const [gameState, setGameState] = useState('WAITING_TO_START')
     const [robotPlay, setRobotPlay] = useState('Nothing yet')
 
-
     // Set up the eventing system and state machine
     useEffect(async ()=>{
         console.log('Setting up event stream')
 
-        // try {
-        //     const sock = await connect({servers:[window.location.host]})
-        //     console.log(sock)
-        // } catch (err){
-        //     console.error(err)
-        // }
 
         const socket = io("/events");
-        const fsm = new EventTranslator(socket, {score, gameState})
+        const fsm = new EventTranslator(socket)
 
         fsm.on('score', (msg)=>{setScore(msg)})
         fsm.on('robotPlay', (msg)=>{setRobotPlay(msg)})
@@ -53,13 +48,13 @@ function App() {
             </header>
 
             <div class="center">
-                <Player name="Human" headerColor="#2453ff" score={score.human}>
-                    <RTSP src='/rps/index.m3u8' />
+                <Player name="human" headerColor="#2453ff" score={score.human}>
+                    <RTSP src={`ws://${location.host}/stream`} />
                 </Player>
 
                 <div className='vs'>VS</div>
                 
-                <Player name="Robot" headerColor="#fe7c3f" score={score.robot}>
+                <Player name="robot" headerColor="#fe7c3f" score={score.robot}>
                     <RobotPlay move={robotPlay} />
                 </Player>
             </div>

@@ -1,26 +1,25 @@
-import React, { useEffect } from 'react'
-
+import React, { useEffect, memo } from 'react'
 import { loadPlayer } from 'rtsp-relay/browser'
 
 function RTSP({
-    playerRef = React.createRef(),
+    playerRef: playerCamRef = React.createRef(),
     src,
     ...props
 }) {
+  if (!playerCamRef.current) console.warn('playerCamRef is null')
 
     useEffect(() => {
       loadPlayer({
-        url: `ws://${location.host}/stream`,
-        canvas: playerRef.current,
+        url: src,
+        canvas: playerCamRef.current,
       
         // optional
         onDisconnect: () => console.log('Connection lost!'),
       })
 
-    }, [playerRef, src]);
+    }, [playerCamRef, src]);
 
-    return <canvas ref={playerRef} {...props} />
-        
+    return <canvas ref={playerCamRef} {...props} className="camera" />
 }
 
-export default RTSP
+export default memo(RTSP)
