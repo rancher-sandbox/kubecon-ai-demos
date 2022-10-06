@@ -52,6 +52,7 @@
 .camera {
     width: fit-content;
     height: 480px;
+    transform: scale(-1, 1);
 }
 
 .name {
