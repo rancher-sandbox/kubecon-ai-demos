@@ -17,14 +17,10 @@ const EventEmitter = require( 'events' )
 // Translates raw events from MQTT into state events for App.js to propagate 
 class EventTranslator extends EventEmitter {
 
-    constructor(events, {
-        score, 
-        gameState
-    }) {
+    constructor(events) {
         super()
         this.events = events
-        this.score = score
-        this.gameState = gameState
+        this.scores = {robot: 0, human: 0}
     }
 
     init(){
@@ -98,16 +94,15 @@ class EventTranslator extends EventEmitter {
 
             case 'end':
                 const {winner, robotPlay, humanPlay} = JSON.parse(message)
-                const scores = JSON.parse(JSON.stringify(this.score))
 
                 if (winner == 'human') {
-                    scores.human = scores.human + 1
+                    this.scores.human = this.scores.human + 1
                 } else {
-                    scores.robot = scores.robot + 1
+                    this.scores.robot = this.scores.robot + 1
                 }
 
                 this.emit('robotPlay', robotPlay)
-                this.emit('score', scores)
+                this.emit('score', this.scores)
 
                 // TODO emit prompt of "blah beats blah"
 

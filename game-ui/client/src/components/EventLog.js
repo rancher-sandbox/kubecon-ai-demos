@@ -1,15 +1,15 @@
 
 function EventLog(props) {
 
-    const logs = props.logs.map((line)=>((
-        <li>{line}</li>
-    )))
-
     return (
-    <ul className="event-log">
+    <div className="event-log">
         <header>Event Log</header>
-        {logs}
-    </ul>
+        <ul>
+        {props.logs.map((line)=>((
+            <li>{line}</li>
+        )))}
+        </ul>
+    </div>
     )
 }
 
