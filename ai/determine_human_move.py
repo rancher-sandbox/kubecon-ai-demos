@@ -175,7 +175,6 @@ if __name__ == "__main__":
     parser.add_argument("rtsp_input_url")
     parser.add_argument("nats_server_url")
     args = vars(parser.parse_args())
-    print(args)
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(run(args["rtsp_input_url"], args["nats_server_url"], loop))
