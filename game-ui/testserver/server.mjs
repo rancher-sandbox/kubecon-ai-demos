@@ -29,8 +29,6 @@ const publishAfterTime = (topic, msg, delay)=>{
 // Testing endpoint 
 app.get('/runtest',async (req,res)=>{
   const endMsg = JSON.stringify({
-    winner: "human",
-    humanPlay: "rock",
     robotPlay: "paper"
   })
 

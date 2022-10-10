@@ -1,20 +1,11 @@
 const EventEmitter = require( 'events' )
 
-    // 'WAITING_TO_START'
-    // 'GAME_STARTING' -- round total
-    // 'ROUND_STARTING' -- round #, round total
-    // 'COUNTDOWN' -- number
-    // 'ROUND_END' -- plays, winner, score
-    // 'GAME_END' -- winner, score, etc...
+const beats = (move1, move2) => (
+    (move1 == 'paper' && move2 == 'rock') ||
+    (move1 == 'rock' && move2 == 'scissors') ||
+    (move1 == 'scissors' && move2 == 'paper')) 
 
-
-
-
-    // 'HEALTHY'
-    // 'INITIALIZING' -- [component initializing]
-    // ''
-
-// Translates raw events from MQTT into state events for App.js to propagate 
+// Translates raw events from MQTT/NATS into state events for App.js to propagate 
 class EventTranslator extends EventEmitter {
 
     constructor(events) {
@@ -93,9 +84,9 @@ class EventTranslator extends EventEmitter {
                 break;
 
             case 'end':
-                const {winner, robotPlay, humanPlay} = JSON.parse(message)
+                const {robotPlay, humanPlay} = JSON.parse(message)
 
-                if (winner == 'human') {
+                if (beats(humanPlay,robotPlay)) {
                     this.scores.human = this.scores.human + 1
                 } else {
                     this.scores.robot = this.scores.robot + 1
