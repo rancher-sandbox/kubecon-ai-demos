@@ -47,7 +47,7 @@ data:
 apiVersion: akri.sh/v0
 kind: Configuration
 metadata:
-  name: udev-camera
+  name: udev-display
   namespace: akri
 spec:
   brokerProperties: {}
