@@ -17,6 +17,8 @@ httpServer.listen(process.env.PORT || 8080, () => {
 // MQTT
 const mqttClient = mqtt.connect(`mqtt://${mqtt_url}`)
 
+const options = ['ROCK', 'PAPER', 'SCISSORS']
+
 // For testing endpoint 
 const publishAfterTime = (topic, msg, delay)=>{
   return new Promise((resolve)=>{
@@ -28,8 +30,10 @@ const publishAfterTime = (topic, msg, delay)=>{
 }
 // Testing endpoint 
 app.get('/runtest',async (req,res)=>{
+
+  const robotPlay = options[Math.floor(Math.random() * options.length)]
   const endMsg = JSON.stringify({
-    robotPlay: "paper"
+    robotPlay
   })
 
   mqttClient.publish('round/start',"")

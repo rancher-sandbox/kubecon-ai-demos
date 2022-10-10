@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    workload.user.cattle.io/workloadselector: apps.daemonset-akri-demo-ui
+  name: demo-ui
+  namespace: akri
+spec:
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      workload.user.cattle.io/workloadselector: apps.daemonset-akri-demo-ui
+  template:
+    metadata:
+      labels:
+        workload.user.cattle.io/workloadselector: apps.daemonset-akri-demo-ui
+    spec:
+      containers:
+      - args:
+        - -c
+        - chromium http://game-client:8080 --start-fullscreen --disable-session-crashed-bubble
+          --disable-infobars --disable-new-profile-management --no-sandbox -autoplay-policy=no-user-gesture-required
+          --remote-debugging-port=9222 --user-data-dir=/tmp/chrome/
+        command:
+        - sh
+        env:
+        - name: DBUS_SESSION_BUS_ADDRESS
+          value: unix:path=/run/user/0/bus
+        - name: DISPLAY
+          value: :0
+        image: registry.opensuse.org/home/atgracey/wallboardos/15.4/chromium:withgtk
+        imagePullPolicy: IfNotPresent
+        name: wallboard
+        securityContext:
+          allowPrivilegeEscalation: true
+          privileged: true
+          readOnlyRootFilesystem: false
+        volumeMounts:
+        - mountPath: /tmp
+          name: tmp
+        - mountPath: /home/user/
+          name: home
+        - mountPath: /root/
+          name: home
+        - mountPath: /run/user
+          name: runuser
+      - args:
+        - -c
+        - |
+          startx -- -nocursor
+        command:
+        - /bin/bash
+        env:
+        - name: DBUS_SESSION_BUS_ADDRESS
+          value: unix:path=/run/user/0/bus
+        image: registry.opensuse.org/home/atgracey/wallboardos/15.4/wallboardos:lxde-15.4
+        imagePullPolicy: Always
+        name: x11
+        securityContext:
+          allowPrivilegeEscalation: true
+          privileged: true
+          readOnlyRootFilesystem: false
+        volumeMounts:
+        - mountPath: /run/user
+          name: runuser
+        - mountPath: /tmp
+          name: tmp
+        - mountPath: /root
+          name: home
+        - mountPath: /root/.xinitrc
+          name: xconfig
+          subPath: .xinitrc
+      terminationGracePeriodSeconds: 5
+      volumes:
+      - hostPath:
+          path: /run/user
+          type: Directory
+        name: runuser
+      - emptyDir: {}
+        name: tmp
+      - emptyDir: {}
+        name: home
+      - configMap:
+          defaultMode: 511
+          items:
+          - key: .xinitrc
+            path: .xinitrc
+          name: xconfig
+        name: xconfig
+  updateStrategy:
+    type: Delete

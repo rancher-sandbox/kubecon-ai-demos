@@ -1,4 +1,5 @@
 
+
 //TODO: change to be images of the last play
 
 function RobotPlay(props) {
@@ -10,7 +11,7 @@ function RobotPlay(props) {
             </div>
         )
     } else {
-        const imageSrc = `/images/${props.move}.png`
+        const imageSrc = `/images/${props.move.toLowerCase()}.jpg`
     
         return (
             <div className="robotDiv">

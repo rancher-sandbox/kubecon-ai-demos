@@ -1,9 +1,9 @@
 const EventEmitter = require( 'events' )
 
 const beats = (move1, move2) => (
-    (move1 == 'paper' && move2 == 'rock') ||
-    (move1 == 'rock' && move2 == 'scissors') ||
-    (move1 == 'scissors' && move2 == 'paper')) 
+    (move1 == 'PAPER' && move2 == 'ROCK') ||
+    (move1 == 'ROCK' && move2 == 'SCISSORS') ||
+    (move1 == 'SCISSORS' && move2 == 'PAPER')) 
 
 // Translates raw events from MQTT/NATS into state events for App.js to propagate 
 class EventTranslator extends EventEmitter {
@@ -86,16 +86,22 @@ class EventTranslator extends EventEmitter {
             case 'end':
                 const {robotPlay, humanPlay} = JSON.parse(message)
 
-                if (beats(humanPlay,robotPlay)) {
+                const tie = (humanPlay == robotPlay)
+                const winner = beats(humanPlay,robotPlay)
+
+
+                if (tie) {
+                    this.sendPrompt(`Tie`, 2000)
+                } else if (beats(humanPlay,robotPlay)) {
                     this.scores.human = this.scores.human + 1
+                    this.sendPrompt(`You win`, 2000)
                 } else {
                     this.scores.robot = this.scores.robot + 1
+                    this.sendPrompt(`Robot Wins`, 2000)
                 }
 
                 this.emit('robotPlay', robotPlay)
                 this.emit('score', this.scores)
-
-                // TODO emit prompt of "blah beats blah"
 
                 break;
         }
