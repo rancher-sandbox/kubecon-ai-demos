@@ -63,7 +63,8 @@ async def run(rtsp_input_url, nats_server_url, loop):
     while cap.isOpened():
         ret, img = cap.read()
         if not ret:
-            continue
+            print("Capture read returned None")
+            break
 
         img = cv2.flip(img, 1)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -178,7 +179,7 @@ if __name__ == "__main__":
 
     loop = asyncio.get_event_loop()
     loop.run_until_complete(run(args["rtsp_input_url"], args["nats_server_url"], loop))
-    loop.run_forever()
+    # loop.run_forever()
     loop.close()
 
 # python3 determine_human_move.py rtsp://localhost:8554/rps nats://localhost:4222
