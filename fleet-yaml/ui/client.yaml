@@ -31,6 +31,15 @@ spec:
         ports:
         - containerPort: 8080
           name: http
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html/config.json
+          name: config
+          subPath: config-override.json
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: ui-config
+        name: config
 ---
 apiVersion: v1
 kind: Service
