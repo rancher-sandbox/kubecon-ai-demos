@@ -1,3 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ui-config
+data:
+  config-override.json: |
+    {
+      "events": "ws://game-server:8080/events",
+      "camera": "ws://rtsp-server:8080/stream"
+    }
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -17,10 +27,19 @@ spec:
     spec:
       containers:
       - name: game-client
-        image: atgracey/game-ui-client:latest
+        image: atgracey/game-ui-client-config:latest
         ports:
         - containerPort: 8080
           name: http
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html/config.json
+          name: config
+          subPath: config-override.json
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: ui-config
+        name: config
 ---
 apiVersion: v1
 kind: Service

@@ -12,6 +12,6 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
-    "mqtt": "^4.3.7"
+    "nats": "^2.7.1"
   }
 }

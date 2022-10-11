@@ -12,7 +12,13 @@ const app = express()
 
 const httpServer = createServer(app)
 
-const io = new Server(httpServer)
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "HEAD"]
+  }
+})
+
 const events = io.of("/events")
 
 
@@ -24,6 +30,11 @@ const natsClient = await connect({servers:[nats_url]})
 
 const sub = natsClient.subscribe('>')
 
+
+
+let currentPlayerMove = ''
+
+
 const startSub = async () => {
 
   // WTF is this pattern...
@@ -31,14 +42,46 @@ const startSub = async () => {
   for await (const m of sub) {
     const topic = m.subject
     const message = sc.decode(m.data)
-
     console.log(`[${sub.getProcessed()}]: ${topic}: ${message}`)
 
-    events.emit('msg', JSON.stringify({
-      topic, 
-      message
-    }))
-  }
+    if(topic == 'human_move') {
+      currentPlayerMove = message
+    }
 
+    if(topic == 'computer_move') {
+      console.log(topic,message)
+      const robotPlay = message
+      events.emit('msg', JSON.stringify({
+        topic, 
+        message: JSON.stringify({
+          robotPlay,
+          humanPlay: currentPlayerMove
+        })
+      }))
+
+    }
+
+
+    if(topic == 'round.end') {
+      const {robotPlay} = JSON.parse(message)
+      events.emit('msg', JSON.stringify({
+        topic, 
+        message: JSON.stringify({
+          robotPlay,
+          humanPlay: currentPlayerMove
+        })
+      }))
+    }
+
+    if(topic == 'round.countdown' || topic == 'round.start') {
+      events.emit('msg', JSON.stringify({
+        topic, 
+        message
+      }))
+    }
+
+  }
 }
+
+
 startSub().then() 
