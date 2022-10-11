@@ -1,0 +1,19 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rps-generate-move
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rps-generate-move
+  template:
+    metadata:
+      labels:
+        app: rps-generate-move
+    spec:
+      containers:
+      - name: generate-move
+        image: sanjayrancher/rps-generate-move
+        args: ['nats://nats.nats:4222']

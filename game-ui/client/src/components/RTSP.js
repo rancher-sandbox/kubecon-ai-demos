@@ -8,15 +8,15 @@ function RTSP({
 }) {
   if (!playerCamRef.current) console.warn('playerCamRef is null')
 
-    useEffect(() => {
-      loadPlayer({
-        url: src,
-        canvas: playerCamRef.current
-      })
+  useEffect(() => {
+    loadPlayer({
+      url: src,
+      canvas: playerCamRef.current
+    })
 
-    }, [playerCamRef, src])
+  }, [playerCamRef, src])
 
-    return <canvas ref={playerCamRef} {...props} className="camera" />
+  return <canvas ref={playerCamRef} {...props} className="camera" />
 }
 
 export default memo(RTSP)

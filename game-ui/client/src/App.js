@@ -1,4 +1,4 @@
-import { useEffect, useState, memo } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 import TimedDialog from './components/Dialog.js'
@@ -14,17 +14,23 @@ import EventTranslator from './EventTranslator.js'
 
 function App() { 
     const [logs, setLog] = useState([])
+    const [config, setConfig] = useState({events: '/events', camera: ''}) //`ws://${location.host}/stream`
     const [score, setScore] = useState({robot: 0, human: 0})
     const [message, setMessage] = useState({duration:0, text:'Wave to start a count down then play against the computer!'})
     const [gameState, setGameState] = useState('WAITING_TO_START')
     const [robotPlay, setRobotPlay] = useState('')
 
+
     // Set up the eventing system and state machine
     useEffect(async ()=>{
         console.log('Setting up event stream')
+        const response = await fetch('/config.json')
+        const newConfig = await response.json()
+        console.log(newConfig)
 
+        setConfig((prevConfig)=>(Object.assign({},prevConfig,newConfig)))
 
-        const socket = io("/events");
+        const socket = io(newConfig.events)
         const fsm = new EventTranslator(socket)
 
         fsm.on('score', (msg)=>{setScore(msg)})
@@ -37,8 +43,9 @@ function App() {
         })
 
         fsm.init()
-        
     },[])
+
+    const Stream = (!!config.camera) ? (<RTSP src={config.camera} />):null;
 
     return (
         <div className="app">
@@ -49,7 +56,7 @@ function App() {
 
             <div class="center">
                 <Player name="human" headerColor="#2453ff" score={score.human}>
-                    <RTSP src={`ws://${location.host}/stream`} />
+                    {Stream}
                 </Player>
 
                 <div className='vs'>VS</div>
