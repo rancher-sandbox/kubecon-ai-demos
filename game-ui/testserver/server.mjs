@@ -21,7 +21,6 @@ const publishAfterTime = (topic, msg, delay)=>{
   return new Promise((resolve)=>{
     setTimeout(()=>{
       natsClient.publish(topic, sc.encode(msg))
-      natsClient.drain()
       resolve()
     },delay)
   })
@@ -29,12 +28,12 @@ const publishAfterTime = (topic, msg, delay)=>{
 // Testing endpoint 
 app.get('/runtest',async (req,res)=>{
 
-  mqttClient.publish('round.start',"")
+  natsClient.publish('round.start',"")
 
   await publishAfterTime('round.countdown',"3", 1000)
   await publishAfterTime('round.countdown',"2", 1000)
   await publishAfterTime('round.countdown',"1", 1000)
-  const {data} = await natsClient.request('get_computer_move',"", {timeout:200})
+  const {data} = await natsClient.request('get_computer_move',"", {timeout:1000})
   const computer_move = sc.decode(data)
 
   await publishAfterTime('round.end', JSON.stringify({

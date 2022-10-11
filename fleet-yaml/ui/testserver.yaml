@@ -20,7 +20,7 @@ spec:
         image: atgracey/game-ui-testserver:latest
         env: 
         - name: NATS_URL
-          value: nats.nats:4222
+          value: nats.nats
         ports:
         - containerPort: 8080
           name: http
