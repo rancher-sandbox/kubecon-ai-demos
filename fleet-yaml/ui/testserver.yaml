@@ -19,8 +19,8 @@ spec:
       - name: game-testserver
         image: atgracey/game-ui-testserver:latest
         env: 
-        - name: MQTT_URL
-          value: nats.nats
+        - name: NATS_URL
+          value: nats.nats:4222
         ports:
         - containerPort: 8080
           name: http

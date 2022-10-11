@@ -48,6 +48,20 @@ const startSub = async () => {
       currentPlayerMove = message
     }
 
+    if(topic == 'computer_move') {
+      console.log(topic,message)
+      const robotPlay = message
+      events.emit('msg', JSON.stringify({
+        topic, 
+        message: JSON.stringify({
+          robotPlay,
+          humanPlay: currentPlayerMove
+        })
+      }))
+
+    }
+
+
     if(topic == 'round.end') {
       const {robotPlay} = JSON.parse(message)
       events.emit('msg', JSON.stringify({
