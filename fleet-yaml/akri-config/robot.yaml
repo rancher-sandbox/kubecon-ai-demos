@@ -1,0 +1,40 @@
+apiVersion: akri.sh/v0
+kind: Configuration
+metadata:
+  name: udev-robot
+  namespace: akri
+spec:
+  brokerProperties: {}
+  brokerSpec:
+    brokerPodSpec:
+      containers:
+      - image: mak3r/rps-gestures:latest
+        name: robot-hand
+        command: ['python', 'gesture.py']
+        env:
+        - name: NATS_URL
+          value: nats.nats
+        resources:
+          limits:
+            '{{PLACEHOLDER}}': "1"
+            cpu: 300m
+            memory: 300Mi
+          requests:
+            '{{PLACEHOLDER}}': "1"
+            cpu: 100m
+            memory: 100Mi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /dev
+          name: dev
+      volumes:
+      - name: dev
+        hostPath:
+          path: /dev
+  capacity: 1
+  discoveryHandler:
+    discoveryDetails: |
+      udevRules:
+      - SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6014", GROUP="plugdev"
+    name: udev
