@@ -19,7 +19,7 @@ spec:
       - args:
         - -c
         - chromium http://game-client:8080 --start-fullscreen --disable-session-crashed-bubble
-          --disable-infobars --disable-new-profile-management --no-sandbox -autoplay-policy=no-user-gesture-required
+          --disable-infobars --disable-new-profile-management -autoplay-policy=no-user-gesture-required
           --remote-debugging-port=9222 --user-data-dir=/tmp/chrome/
         command:
         - sh
@@ -35,6 +35,7 @@ spec:
           allowPrivilegeEscalation: true
           privileged: true
           readOnlyRootFilesystem: false
+          runAsUser: 1000
         volumeMounts:
         - mountPath: /tmp
           name: tmp
