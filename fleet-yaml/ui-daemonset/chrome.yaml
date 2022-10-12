@@ -4,7 +4,6 @@ metadata:
   labels:
     workload.user.cattle.io/workloadselector: apps.daemonset-akri-demo-ui
   name: demo-ui
-  namespace: akri
 spec:
   revisionHistoryLimit: 0
   selector:
@@ -89,7 +88,7 @@ spec:
           name: xconfig
         name: xconfig
   updateStrategy:
-    type: Delete
+    type: OnDelete
 ---
 apiVersion: v1
 kind: ConfigMap
