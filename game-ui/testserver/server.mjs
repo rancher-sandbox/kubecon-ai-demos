@@ -25,20 +25,55 @@ const publishAfterTime = (topic, msg, delay)=>{
     },delay)
   })
 }
-// Testing endpoint 
-app.get('/runtest',async (req,res)=>{
 
-  natsClient.publish('round.start',"")
+const runRound = async ()=>{
 
-  await publishAfterTime('round.countdown',"3", 1000)
-  await publishAfterTime('round.countdown',"2", 1000)
-  await publishAfterTime('round.countdown',"1", 1000)
-  const {data} = await natsClient.request('get_computer_move',"", {timeout:1000})
+  natsClient.publish('round.start', "")
+
+  await publishAfterTime('round.countdown', "3", 1000)
+  await publishAfterTime('round.countdown', "2", 1000)
+  await publishAfterTime('round.countdown', "1", 1000)
+
+  //TODO parallelize with wait time
+
+  const {data} = await natsClient.request('get_computer_move', "", {timeout:1000})
   const computer_move = sc.decode(data)
 
   await publishAfterTime('round.end', JSON.stringify({
     robotPlay: computer_move.toUpperCase()
   }), 1000)
 
-  res.send(204)
+} 
+
+
+// Testing endpoint 
+app.get('/runtest', async (req,res)=>{
+  await runRound()
+  res.send("done")
+})
+
+
+const formPageHtml = `
+<html>
+<head><title>RPS Control</title></head>
+<body>
+  <form action="#" method="POST">
+    <button type="submit">Start Game</button>
+  </form>
+</body>
+</html>
+`
+
+app.post('/runRound', async (req,res)=>{
+  if (!!req.query.cheat) {
+    //TODO
+    console.log('NO CHEATING')
+  }
+  runRound()
+  res.send(formPageHtml)
+})
+
+
+app.get('/runRound', async (req,res)=>{
+  res.send(formPageHtml)
 })
