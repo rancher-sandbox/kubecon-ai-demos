@@ -90,3 +90,18 @@ spec:
         name: xconfig
   updateStrategy:
     type: Delete
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: xconfig
+data:
+  .xinitrc: |- 
+    #!/bin/bash
+    set -x
+    
+    xset -dpms
+    xset s off
+    xset s noblank
+    xhost +
+    exec startlxde
