@@ -2,7 +2,7 @@
 #include <Adafruit_PWMServoDriver.h>
 
 #define DEBUG 1
-
+//#undef DEBUG
 
 //Initialize arduino i2c for config data
 I2CSlaveMode agent = new I2CSlaveMode();
@@ -42,7 +42,8 @@ uint8_t signatures[6] = { 0x10, 0x20, 0x30, 0x40, 0x50, 0x60 };
  *  8-9   : position to move to in uS - will not exceed extend values
  *  A     : if > 0 relax after move
  *  B     : delay between extend and relax moves. Range is between 0x00 and 0xFF
- *  C-E   : UNUSED
+ *  C     : if > 0 enable debug output
+ *  D-E   : UNUSED
  *  F     : if > 0 activate this signature otherwise do nothing (IMPORTANT this is what indicates to move the servo or not)
  *    
  *  An example signature to make the peace sign gesture would look like this
@@ -65,6 +66,7 @@ enum signature_offsets {
   sig_position = 0x8,
   sig_relax = 0xA,
   sig_delay = 0xB,
+  sig_debug = 0xC,
   sig_activate = 0xF,
 };
 /**************
@@ -79,7 +81,7 @@ enum signature_offsets {
 // Min starts at about 600 microseconds 
 // Max starts at about 2400 microseconds 
 enum runtime_offset {
-  gesture_hold = 0x04,//Register with a multiplier for number of seconds to hold the gesture 
+  gesture_hold = 0x04,//Register with a multiplier for number of seconds to hold the gesture before repeating it
   /*********************
    * the run_count register value can be used by the client to activate or deactivate the current gesture
    * If the state is less than 0xFF, the program will run the number of times
@@ -125,26 +127,35 @@ void setup() {
   pwm.sleep();
   pwm.setPWMFreq(SERVO_FREQ);  // This is the maximum PWM frequency
 
+  update_interval();
+  state_changed();
+  start_activity();   
+}
+
+void update_interval() {
   interval = agent.getRegister(gesture_hold) * 1000;
   // Arbitrarilly decided that the interval should not be less than 1 second 
   // or more than 20 seconds
   interval = constrain(interval, 1000, 20000);
-
-  start_activity();   
 }
 
-void start_activity() {
-    
-    uint8_t next_state = (uint8_t)agent.getRegister(run_count);
-    if (next_state != cur_state) {
-      cur_state = next_state;
-      active_state = next_state;
-    }
+void start_activity() {      
+  active_state = cur_state;
+}
+
+bool state_changed() {
+  uint8_t next_state = (uint8_t)agent.getRegister(run_count);
+
+  if (next_state != cur_state) {
+    cur_state = next_state;
+    return true;
+  } else {
+    return false;
+  }
 }
 
 void load_gesture() {
-  
-  for (uint8_t i = 0; i < signature_len; i++) {
+    for (uint8_t i = 0; i < signature_len; i++) {
     hand[pinky][i] = agent.getRegister(signatures[pinky]+i);
     hand[ring][i] = agent.getRegister(signatures[ring]+i);
     hand[middle][i] = agent.getRegister(signatures[middle]+i);
@@ -171,14 +182,16 @@ void relax(servo f) {
 }
 
 void set_position(servo f) {
-  
   if ( hand[f][sig_activate] > 0 ) {
+    if (agent.getRegister(signatures[f]+sig_debug) > 0) {
+      _dump_digit(f);
+    }
     uint16_t min = get_double_reg(signatures[f]+min_extend);
     uint16_t max = get_double_reg(signatures[f]+max_extend);
     uint16_t pos = get_double_reg(signatures[f]+sig_position);
     pwm.writeMicroseconds((byte)f, constrain(pos, min, max));
     if (hand[f][sig_relax] > 0) {
-      delay(hand[f][sig_delay]);
+      delay(hand[f][sig_delay]*4);
       relax(f);
     }
   }
@@ -190,9 +203,12 @@ void loop() {
 
   if (currentMillis - previousMillis >= interval) {
     previousMillis = currentMillis;
+    update_interval();
     load_gesture();    
 
-    //If anything is not null do gesture()
+    if (state_changed()) {
+      start_activity();
+    }
     if (active_state > 0){      
       pwm.wakeup();
       gesture();      
@@ -205,7 +221,7 @@ void loop() {
 void _dump_digit(servo f) {
   #ifdef DEBUG
     
-    char buf[strlen(digit[f]) + 3];
+    char buf[strlen(digit[f]) + 3] = {0};
     sprintf(buf, "%s: ", digit[f]);
     Serial.println();
     Serial.print(buf);
