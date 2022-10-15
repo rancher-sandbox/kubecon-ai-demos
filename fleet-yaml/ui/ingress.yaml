@@ -22,7 +22,7 @@ spec:
             name: game-client
             port: 
               name: http
-      - path: /runtest
+      - path: /runRound
         pathType: Exact
         backend:
           service:

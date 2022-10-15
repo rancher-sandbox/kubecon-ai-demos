@@ -1,30 +1,17 @@
 const EventEmitter = require( 'events' )
 
-    // 'WAITING_TO_START'
-    // 'GAME_STARTING' -- round total
-    // 'ROUND_STARTING' -- round #, round total
-    // 'COUNTDOWN' -- number
-    // 'ROUND_END' -- plays, winner, score
-    // 'GAME_END' -- winner, score, etc...
+const beats = (move1, move2) => (
+    (move1 == 'PAPER' && move2 == 'ROCK') ||
+    (move1 == 'ROCK' && move2 == 'SCISSORS') ||
+    (move1 == 'SCISSORS' && move2 == 'PAPER')) 
 
-
-
-
-    // 'HEALTHY'
-    // 'INITIALIZING' -- [component initializing]
-    // ''
-
-// Translates raw events from MQTT into state events for App.js to propagate 
+// Translates raw events from MQTT/NATS into state events for App.js to propagate 
 class EventTranslator extends EventEmitter {
 
-    constructor(events, {
-        score, 
-        gameState
-    }) {
+    constructor(events) {
         super()
         this.events = events
-        this.score = score
-        this.gameState = gameState
+        this.scores = {robot: 0, human: 0}
     }
 
     init(){
@@ -97,19 +84,24 @@ class EventTranslator extends EventEmitter {
                 break;
 
             case 'end':
-                const {winner, robotPlay, humanPlay} = JSON.parse(message)
-                const scores = JSON.parse(JSON.stringify(this.score))
+                const {robotPlay, humanPlay} = JSON.parse(message)
 
-                if (winner == 'human') {
-                    scores.human = scores.human + 1
+                const tie = (humanPlay == robotPlay)
+                const winner = beats(humanPlay,robotPlay)
+
+
+                if (tie) {
+                    this.sendPrompt(`Tie`, 2000)
+                } else if (beats(humanPlay,robotPlay)) {
+                    this.scores.human = this.scores.human + 1
+                    this.sendPrompt(`You win`, 2000)
                 } else {
-                    scores.robot = scores.robot + 1
+                    this.scores.robot = this.scores.robot + 1
+                    this.sendPrompt(`Robot Wins`, 2000)
                 }
 
                 this.emit('robotPlay', robotPlay)
-                this.emit('score', scores)
-
-                // TODO emit prompt of "blah beats blah"
+                this.emit('score', this.scores)
 
                 break;
         }

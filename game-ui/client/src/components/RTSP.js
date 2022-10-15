@@ -1,26 +1,51 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, memo, useState } from 'react'
+import { loadPlayer } from './rtsp-lib.js'
 
-import { loadPlayer } from 'rtsp-relay/browser'
+
+let player = null
 
 function RTSP({
-    playerRef = React.createRef(),
+    playerRef: playerCamRef = React.createRef(),
     src,
     ...props
 }) {
+  console.log('rendering rtsp element')
+  if (!playerCamRef || !playerCamRef.current) console.warn('playerCamRef is null')
 
-    useEffect(() => {
-      loadPlayer({
-        url: `ws://${location.host}/stream`,
-        canvas: playerRef.current,
-      
-        // optional
-        onDisconnect: () => console.log('Connection lost!'),
-      })
+  useEffect(() => {
+    console.log('Creating player')
 
-    }, [playerRef, src]);
+    if (player) {
+      console.log('Player is not null, destroying')
+      player.source.abort()
+      player.destroy()
+    }
 
-    return <canvas ref={playerRef} {...props} />
-        
+    console.log('Creating player for real')
+    player = new window.JSMpeg.Player(src, {
+      canvas: playerCamRef.current,
+      audio: false
+    })
+
+
+    // console.log('UseEffect -- ', playerCamRef)
+    // if (!playerCamRef || !playerCamRef.current) {console.log('No ref');return}
+    // loadPlayer({
+    //   url: src,
+    //   canvas: playerCamRef.current,
+    //   audio: false,
+    //   onDisconnect: (lp) => {
+    //     if(!!lp && typeof lp.destroy == 'function') {
+    //       console.log('Destroying player -- ', lp)
+    //       lp.destroy()
+    //       setPlayerCamRef(React.createRef())
+    //     }
+    //   }
+    // })
+
+  }, [playerCamRef, src])
+
+  return <canvas ref={playerCamRef} {...props} className="camera" />
 }
 
-export default RTSP
+export default memo(RTSP)

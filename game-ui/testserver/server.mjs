@@ -1,8 +1,8 @@
 import express from 'express'
 import { createServer } from "http"
-import * as mqtt from 'mqtt'
-
-const mqtt_url = process.env.MQTT_URL
+import { connect, StringCodec } from 'nats'
+const sc = StringCodec()
+const nats_url = process.env.NATS_URL
 
 
 // HTTP & Websocket Server
@@ -14,32 +14,66 @@ httpServer.listen(process.env.PORT || 8080, () => {
   console.log('Listening')
 })
 
-// MQTT
-const mqttClient = mqtt.connect(`mqtt://${mqtt_url}`)
+const natsClient = await connect({servers:[nats_url]})
 
 // For testing endpoint 
 const publishAfterTime = (topic, msg, delay)=>{
   return new Promise((resolve)=>{
     setTimeout(()=>{
-      mqttClient.publish(topic, msg)
+      natsClient.publish(topic, sc.encode(msg))
       resolve()
     },delay)
   })
 }
+
+const runRound = async ()=>{
+
+  natsClient.publish('round.start', "")
+
+  await publishAfterTime('round.countdown', "3", 1000)
+  await publishAfterTime('round.countdown', "2", 1000)
+  await publishAfterTime('round.countdown', "1", 1000)
+
+  //TODO parallelize with wait time
+
+  const {data} = await natsClient.request('get_computer_move', "", {timeout:1000})
+  const computer_move = sc.decode(data)
+
+  await publishAfterTime('round.end', JSON.stringify({
+    robotPlay: computer_move.toUpperCase()
+  }), 1000)
+
+} 
+
+
 // Testing endpoint 
-app.get('/runtest',async (req,res)=>{
-  const endMsg = JSON.stringify({
-    winner: "human",
-    humanPlay: "rock",
-    robotPlay: "paper"
-  })
+app.get('/runtest', async (req,res)=>{
+  await runRound()
+  res.send("done")
+})
 
-  mqttClient.publish('round/start',"")
 
-  await publishAfterTime('round/countdown',"3", 1000)
-  await publishAfterTime('round/countdown',"2", 1000)
-  await publishAfterTime('round/countdown',"1", 1000)
-  await publishAfterTime('round/end', endMsg, 1000)
+const formPageHtml = `
+<html>
+<head><title>RPS Control</title></head>
+<body>
+  <form action="#" method="POST">
+    <button type="submit">Start Game</button>
+  </form>
+</body>
+</html>
+`
 
-  res.send(204)
+app.post('/runRound', async (req,res)=>{
+  if (!!req.query.cheat) {
+    //TODO
+    console.log('NO CHEATING')
+  }
+  runRound()
+  res.send(formPageHtml)
+})
+
+
+app.get('/runRound', async (req,res)=>{
+  res.send(formPageHtml)
 })

@@ -23,10 +23,9 @@
     float:left;
     margin-top: 220px;
 }
+
 .player-frame {
-    float: left;
-    width: 256px;
-    height: 384px;
+    flex: 1;
 
     margin-left: 4rem;
     margin-right: 4rem;
@@ -34,6 +33,10 @@
 
     border: 2px black solid;
     border-radius: .5rem;
+}
+
+.human-frame {
+    max-width: fit-content;
 }
 
 .player-frame > header, .event-log > header {
@@ -46,15 +49,17 @@
     font-size: 1.5rem;
 }
 
-.player-frame > :not(header) {
-    width: 100%;
-    height: calc(100% - 2em);
+.camera {
+    width: fit-content;
+    height: 960px;
+    transform: scale(-1, 1);
 }
 
 .name {
     float: left;
     padding: .75rem;
 }
+
 .score {
     float: right;
     padding: .75rem;
@@ -62,12 +67,25 @@
 
 
 .event-log {
-    clear: both;
-}
-.event-log > header {
-    border-bottom: 1px inset black;
+    position: absolute;
+    width: 100%;
+    bottom: 0px;
+    height: 12em;
 }
 
+.event-log > header {
+    border-top: 1px inset #000;
+    height: fit-content;
+    border-bottom: 2px outset #FFF;
+    padding-top: .5em;
+    padding-bottom: .5em;
+}
+
+.event-log > ul {
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+}
 
 .instructions {
     width: 100%;
@@ -85,6 +103,7 @@ dialog {
     font-size: 4rem;
     font-family: sans-serif;
 
+    /* TODO doesn't work */
     transition: open 2s;
 }
 
@@ -93,3 +112,6 @@ dialog {
     justify-content: center;
 }
 
+.robotImg {
+    height: 960px;
+}
