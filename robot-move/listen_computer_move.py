@@ -29,17 +29,53 @@ async def main(nats_server_url, loop):
         closed_cb=closed_cb,
     )
 
+    async def connect():
+	try:
+		print("Connecting to ftdi device")
+		i2c = I2cController()
+		await i2c.configure('ftdi://ftdi:232h:1/1')
+		agent = i2c.get_port(0x47)
+		CONNECTED=True
+	except:
+		print("Connection failed")
+		CONNECTED=False
+
     async def move_robot(msg):
-        # Move the robot hand
-        print(msg.data)
-        if msg.reply:
-            await msg.respond(msg.reply, msg.data)
+        if(not CONNECTED):
+			try:
+				connect()
+				print("Computer move registered: ", msg.data)
+                    # Move the robot hand
+                    match msg.data:
+                        case "rock":
+                            agent.write_to(0xFF, b'\xFF')
+
+                        case "paper"
+                            agent.write_to(0xFF, b'\xFF')
+
+                        case "scissors"
+                            agent.write_to(0xFF, b'\xFF')
+
+                        case _:
+                            agent.write_to(0xFF, b'\xFF')
+
+                    if msg.reply:
+                        await msg.respond(msg.reply, msg.data)
+                        
+			except:
+				print("Gesture changed but device not connected")
+                if msg.reply:
+                        await msg.respond(msg.reply, "disconnected")
+
 
     if nc.is_connected:
         sub = await nc.subscribe("computer_move", cb=move_robot)
 
 
 if __name__ == "__main__":
+
+    CONNECTED=False
+
     parser = argparse.ArgumentParser()
     parser.add_argument("nats_server_url")
     args = vars(parser.parse_args())
