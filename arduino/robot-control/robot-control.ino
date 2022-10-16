@@ -34,18 +34,6 @@ uint8_t signatures[6] = { 0x10, 0x20, 0x30, 0x40, 0x50, 0x60 };
  *  Each servo can be uniquely manipulated 
  *  Each servo has 16 registers for detailing its range and desired position
  * 
- *  Register offsets from the gesture_offset
- *  0-1   : Min extend - the absolute minimum uS this servo can go
- *  2-3   : Max extend - the absolute maximum uS this servo can go
- *  4-5   : Min relax - min extension in uS but relieve the tension slightly toward max
- *  6-7   : Max relax - max extention in uS but relieve the tension slightly toward min
- *  8-9   : position to move to in uS - will not exceed extend values
- *  A     : if > 0 relax after move
- *  B     : delay between extend and relax moves. Range is between 0x00 and 0xFF
- *  C     : if > 0 enable debug output
- *  D-E   : UNUSED
- *  F     : if > 0 activate this signature otherwise do nothing (IMPORTANT this is what indicates to move the servo or not)
- *    
  *  An example signature to make the peace sign gesture would look like this
  *  register start  : value
  *  0x10            : 0x05 0x64 0x09 0x60 0x05 0xC0 0x07 0xD0 0x09 0x60 0x01 0x32 0x00 0x00 0x00 0x01
@@ -59,15 +47,17 @@ uint8_t signatures[6] = { 0x10, 0x20, 0x30, 0x40, 0x50, 0x60 };
  *    and the last servo is disabled
  */
 enum signature_offsets {
-  min_extend = 0x0,
-  max_extend = 0x2,
-  min_relax = 0x4,
-  max_relax = 0x6,
-  sig_position = 0x8,
-  sig_relax = 0xA,
-  sig_delay = 0xB,
-  sig_debug = 0xC,
-  sig_activate = 0xF,
+  min_extend = 0x0, // 2 bytes - absolute minimum extension
+  max_extend = 0x2, // 2 bytes - absolute maximum extension
+  min_relax = 0x4, // 2 bytes - minimum relaxed extension
+  max_relax = 0x6, // 2 bytes - maximum relaxed extension
+  sig_position = 0x8, // 2 bytes - desired servo postion
+  sig_relax = 0xA, // 1 byte, value > 0 indicates to relax the servo at the end of the move
+  sig_delay = 0xB, // 1 byte, 4 x value is the millisecond delay before relaxing
+  sig_debug = 0xC, // 1 byte, dump the signature to serial output (requires #define DEBUG is also true)
+  unused_d = 0xD, // UNUSED
+  unused_e = 0xE, // UNUSED
+  sig_activate = 0xF, // 1 byte, this servo should be activated
 };
 /**************
  * End signature offsets data
