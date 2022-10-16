@@ -10,7 +10,11 @@ spec:
       containers:
       - image: mak3r/rps-gestures:latest
         name: robot-hand
-        command: ['python', 'gesture.py']
+      - args: 
+        - -c
+        - while true; do echo "testing"; sleep 120; done
+        command: 
+        - '/bin/sh'
         env:
         - name: NATS_URL
           value: nats.nats
