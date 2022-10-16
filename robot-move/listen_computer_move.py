@@ -53,36 +53,36 @@ async def main(nats_server_url, loop):
             try:
                 await connect()
                 print("Computer move registered: ", msg.data)
-                    # Move the robot hand
-                    # Register indexes
-                    match msg.data:
-                        case "rock":
-                            await agent.write_to(servo["pinky"], b'\x09\x60')
-                            await agent.write_to(servo["ring"], b'\x09\x60')
-                            await agent.write_to(servo["middle"], b'\x09\x60')
-                            await agent.write_to(servo["pointer"], b'\x09\x60')
-                            await agent.write_to(servo["thumb"], b'\x09\x60')
-                            await agent.write_to(command["activate"], flip_switch() )
+                # Move the robot hand
+                # Register indexes
+                match msg.data:
+                    case "rock":
+                        await agent.write_to(servo["pinky"], b'\x09\x60')
+                        await agent.write_to(servo["ring"], b'\x09\x60')
+                        await agent.write_to(servo["middle"], b'\x09\x60')
+                        await agent.write_to(servo["pointer"], b'\x09\x60')
+                        await agent.write_to(servo["thumb"], b'\x09\x60')
+                        await agent.write_to(command["activate"], flip_switch() )
 
-                        case "paper":
-                            await agent.write_to(servo["pinky"], b'\x05\x64')
-                            await agent.write_to(servo["ring"], b'\x05\x64')
-                            await agent.write_to(servo["middle"], b'\x05\x64')
-                            await agent.write_to(servo["pointer"], b'\x05\x64')
-                            await agent.write_to(servo["thumb"], b'\x05\x64')
-                            await agent.write_to(command["activate"], flip_switch() )
+                    case "paper":
+                        await agent.write_to(servo["pinky"], b'\x05\x64')
+                        await agent.write_to(servo["ring"], b'\x05\x64')
+                        await agent.write_to(servo["middle"], b'\x05\x64')
+                        await agent.write_to(servo["pointer"], b'\x05\x64')
+                        await agent.write_to(servo["thumb"], b'\x05\x64')
+                        await agent.write_to(command["activate"], flip_switch() )
 
-                        case "scissors":
-                            await agent.write_to(0xFF, b'\xFF')
-                            await agent.write_to(servo["pinky"], b'\x05\x64')
-                            await agent.write_to(servo["ring"], b'\x05\x64')
-                            await agent.write_to(servo["middle"], b'\x09\x60')
-                            await agent.write_to(servo["pointer"], b'\x09\x60')
-                            await agent.write_to(servo["thumb"], b'\x05\x64')
-                            await agent.write_to(command["activate"], flip_switch() )
+                    case "scissors":
+                        await agent.write_to(0xFF, b'\xFF')
+                        await agent.write_to(servo["pinky"], b'\x05\x64')
+                        await agent.write_to(servo["ring"], b'\x05\x64')
+                        await agent.write_to(servo["middle"], b'\x09\x60')
+                        await agent.write_to(servo["pointer"], b'\x09\x60')
+                        await agent.write_to(servo["thumb"], b'\x05\x64')
+                        await agent.write_to(command["activate"], flip_switch() )
 
-                        case _:
-                            await agent.write_to(0xFF, b'\xFF')
+                    case _:
+                        await agent.write_to(0xFF, b'\xFF')
 
                     if msg.reply:
                         await msg.respond(msg.reply, msg.data)
