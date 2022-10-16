@@ -31,11 +31,12 @@ async def main(nats_server_url, loop):
 
     async def move_robot(msg):
         # Move the robot hand
-        await print(msg)
-        await msg.respond(msg)
+        print(msg.data)
+        if msg.reply:
+            await msg.respond(msg.reply, msg.data)
 
     if nc.is_connected:
-        sub = await nc.subscribe("get_computer_move", cb=move_robot)
+        sub = await nc.subscribe("computer_move", cb=move_robot)
 
 
 if __name__ == "__main__":
