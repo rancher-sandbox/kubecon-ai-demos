@@ -2,8 +2,9 @@ import asyncio
 import argparse
 import nats
 from nats.errors import NoServersError, TimeoutError
-import logging
-import random
+from pyftdi.ftdi import Ftdi
+from pyftdi.i2c import I2cController
+
 
 rps_moves = {0: "rock", 1: "paper", 2: "scissors"}
 servo = {"pinky": 0x18, "ring": 0x18, "middle": 0x18, "pointer": 0x18, "thumb": 0x18, "wrist": 0x18, }
