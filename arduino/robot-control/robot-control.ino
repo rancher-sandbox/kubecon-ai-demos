@@ -90,12 +90,13 @@ enum runtime_offset {
    * The program checks the state periodically 
    * based on the timing interval specified using gesture_hold value
    *********************************/
-  run_count = 0x05 // Register indicating how many cycles to run the program
+  run_count = 0x05, // Register indicating how many cycles to run the program
+  run_program = 0x06 // When this value has changed, Run the program `run_count` times delaying `gesture_hold` between runs 
 };
 
 // Will be set to the value of the run_count register if the cur and stored state are different
 uint8_t active_state = 0x00;
-uint8_t cur_state = active_state;
+uint8_t cur_state = 0x00;
 
 uint8_t const signature_len = 16;
 // Default is do nothing
@@ -120,8 +121,8 @@ uint16_t get_double_reg(uint8_t reg) {
 void setup() {
 
   Serial.begin(9600);
-  Serial.println("\nFinger Control");
-  Serial.print("I2C address:");
+  Serial.println("\nRobot Hand Control");
+  Serial.print("I2C address: 0x");
   Serial.println(agent.getAddress(), HEX);
   pwm.begin(); //This calls Wire.begin()
   pwm.sleep();
@@ -140,11 +141,11 @@ void update_interval() {
 }
 
 void start_activity() {      
-  active_state = cur_state;
+  active_state = agent.getRegister(run_count);
 }
 
 bool state_changed() {
-  uint8_t next_state = (uint8_t)agent.getRegister(run_count);
+  uint8_t next_state = (uint8_t)agent.getRegister(run_program);
 
   if (next_state != cur_state) {
     cur_state = next_state;
