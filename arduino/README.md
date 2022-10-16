@@ -14,5 +14,6 @@ The robot arm is used to give a physical expression of the computer move in the 
 ## Contents
 
 * [arduino](./arduino)
-    * [finger-stress-test](./arduino/finger-stress-test) - used to stress the tendons on the inmoov finger test platform
-    * [rps](./arduino/rps) - code to run the rock paper scissor game
+    * [finger-stress-test](./finger-stress-test) - used to stress the tendons on the inmoov finger test platform
+    * [robot-control]](./robot-control) - code to run the rock paper scissor game
+    * [i2c-setup](./i2c-setup) - code used to check the eeprom content and update it with the desired base configuration
