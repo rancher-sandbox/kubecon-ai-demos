@@ -43,21 +43,21 @@ async def main(nats_server_url, loop):
     async def move_robot(msg):
         if(not CONNECTED):
 			try:
-				connect()
+				await connect()
 				print("Computer move registered: ", msg.data)
                     # Move the robot hand
                     match msg.data:
                         case "rock":
-                            agent.write_to(0xFF, b'\xFF')
+                            await agent.write_to(0xFF, b'\xFF')
 
                         case "paper"
-                            agent.write_to(0xFF, b'\xFF')
+                            await agent.write_to(0xFF, b'\xFF')
 
                         case "scissors"
-                            agent.write_to(0xFF, b'\xFF')
+                            await agent.write_to(0xFF, b'\xFF')
 
                         case _:
-                            agent.write_to(0xFF, b'\xFF')
+                            await agent.write_to(0xFF, b'\xFF')
 
                     if msg.reply:
                         await msg.respond(msg.reply, msg.data)
