@@ -34,15 +34,15 @@ async def main(nats_server_url, loop):
     )
 
     async def connect():
-	try:
-		print("Connecting to ftdi device")
-		i2c = I2cController()
-		await i2c.configure('ftdi://ftdi:232h:1/1')
-		agent = i2c.get_port(0x47)
-		CONNECTED=True
-	except:
-		print("Connection failed")
-		CONNECTED=False
+    try:
+        print("Connecting to ftdi device")
+        i2c = I2cController()
+        await i2c.configure('ftdi://ftdi:232h:1/1')
+        agent = i2c.get_port(0x47)
+        CONNECTED=True
+    except:
+        print("Connection failed")
+        CONNECTED=False
 
     async def flip_switch():
         cur = await agent.read_from(command["activate"])
@@ -50,9 +50,9 @@ async def main(nats_server_url, loop):
 
     async def move_robot(msg):
         if(not CONNECTED):
-			try:
-				await connect()
-				print("Computer move registered: ", msg.data)
+            try:
+                await connect()
+                print("Computer move registered: ", msg.data)
                     # Move the robot hand
                     # Register indexes
                     match msg.data:
@@ -87,8 +87,8 @@ async def main(nats_server_url, loop):
                     if msg.reply:
                         await msg.respond(msg.reply, msg.data)
                         
-			except:
-				print("Gesture changed but device not connected")
+            except:
+                print("Gesture changed but device not connected")
                 if msg.reply:
                         await msg.respond(msg.reply, "disconnected")
 
