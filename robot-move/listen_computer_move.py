@@ -1,6 +1,5 @@
 import asyncio
 import argparse
-from asyncio.windows_events import NULL
 import nats
 from nats.errors import NoServersError, TimeoutError
 import logging
