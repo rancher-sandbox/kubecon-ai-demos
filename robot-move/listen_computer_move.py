@@ -34,15 +34,15 @@ async def main(nats_server_url, loop):
     )
 
     async def connect():
-    try:
-        print("Connecting to ftdi device")
-        i2c = I2cController()
-        await i2c.configure('ftdi://ftdi:232h:1/1')
-        agent = i2c.get_port(0x47)
-        CONNECTED=True
-    except:
-        print("Connection failed")
-        CONNECTED=False
+        try:
+            print("Connecting to ftdi device")
+            i2c = I2cController()
+            await i2c.configure('ftdi://ftdi:232h:1/1')
+            agent = i2c.get_port(0x47)
+            CONNECTED=True
+        except:
+            print("Connection failed")
+            CONNECTED=False
 
     async def flip_switch():
         cur = await agent.read_from(command["activate"])
