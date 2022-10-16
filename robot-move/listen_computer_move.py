@@ -84,13 +84,13 @@ async def main(nats_server_url, loop):
                     case _:
                         await agent.write_to(0xFF, b'\xFF')
 
-                    if msg.reply:
-                        await msg.respond(msg.reply, msg.data)
+                if msg.reply:
+                    await msg.respond(msg.reply, msg.data)
                         
             except:
                 print("Gesture changed but device not connected")
                 if msg.reply:
-                        await msg.respond(msg.reply, "disconnected")
+                    await msg.respond(msg.reply, "disconnected")
 
 
     if nc.is_connected:
