@@ -55,16 +55,32 @@ app.get('/runtest', async (req,res)=>{
 
 const formPageHtml = `
 <html>
-<head><title>RPS Control</title></head>
+<head>
+<title>RPS Control</title>
+<style>
+form {
+  width: 100%;
+  height: 50%;
+}
+button {
+  width: 100%;
+  height: 100%;
+}
+</style>
+</head>
 <body>
-  <form action="#" method="POST">
+  <form action="#?cheat=false" method="POST">
     <button type="submit">Start Game</button>
+  </form>
+  <form action="#?cheat=true" method="POST">
+    <button type="submit">Cheat</button>
   </form>
 </body>
 </html>
 `
 
 app.post('/runRound', async (req,res)=>{
+  console.log('Query: ',req.query)
   if (!!req.query.cheat) {
     //TODO
     console.log('NO CHEATING')

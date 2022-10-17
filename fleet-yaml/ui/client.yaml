@@ -5,8 +5,8 @@ metadata:
 data:
   config-override.json: |
     {
-      "events": "ws://game-server:8080/events",
-      "camera": "ws://rtsp-server:8080/stream"
+      "events": "ws://game-server.game:8080/events",
+      "camera": "ws://rtsp-server.game:8080/stream"
     }
 ---
 apiVersion: apps/v1
