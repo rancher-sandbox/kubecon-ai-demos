@@ -1,21 +1,25 @@
 import asyncio
 import argparse
+from tkinter import E
 import nats
 from nats.errors import NoServersError, TimeoutError
-from pyftdi.ftdi import Ftdi
-from pyftdi.i2c import I2cController
 from time import sleep
+import os
+import serial
 
-
-rps_moves = {0: "rock", 1: "paper", 2: "scissors"}
+rps_move = {
+    b'rock'     : b'1', 
+    b'paper'    : b'2', 
+    b'scissors' : b'3', 
+    b'win'      : b'4', 
+    b'lose'     : b'5'
+}
 servo = {"pinky": 0x18, "ring": 0x18, "middle": 0x18, "pointer": 0x18, "thumb": 0x18, "wrist": 0x18, }
-command = {"activate": 0x06, "run_count": 0x05}
-cmd_val = {"one": b'\x01', "zero": b'\x00', "three": b'\x03'}
 agent = None
-cur = 0x00
-fsw = 0x00
-sleepy = .5
-CONNECTED=False
+device = None
+PORT = os.environ['UDEV_DEVNODE']
+BAUDRATE = 115200
+TIMEOUT = .1
 
 async def main(nats_server_url, loop):
     async def disconnected_cb():
@@ -39,35 +43,25 @@ async def main(nats_server_url, loop):
     )
 
     def connect():
-        global agent
-        global CONNECTED
+        global device
         try:
-            print("Connecting to ftdi device")
-            i2c = I2cController()
-            i2c.configure('ftdi://ftdi:232h:1/1')
-            agent = i2c.get_port(0x47)
-            print("Agent configured: ", type(agent))
-            CONNECTED=True
+            device = serial.Serial(PORT, BAUDRATE, TIMEOUT)
         except Exception as e:
-            print("Connection failed", e)
-            CONNECTED=False
-
-    def flip_switch():
-            global cur
-            global fsw
-            cur = cmd_val["one"] if fsw == cmd_val["zero"] else cmd_val["zero"]
-            print("Activate switch value: ", cur)
-            return cur
-
+            print("Serial device connection failed. ", e)
+            device = None
+    
+    def disconnect():
+        global device
+        try:
+            device.close()
+            device = None
+        except Exception as e:
+            print("There was a problem disconnecting. ", e)
 
     async def move_robot(msg):
-        global agent
-        global CONNECTED
-        global fsw
-        global sleepy
-
+        global device
         print("Computer move registered: ", msg.data)
-        if(not CONNECTED):
+        if(device == None):
             try:
                 connect()
             except Exception as e:
@@ -78,68 +72,11 @@ async def main(nats_server_url, loop):
 
         try:
             # Move the robot hand
-            # Register indexes
-            match msg.data:
-                case b'rock':
-                    print("configure and activate gesture rock ...")
-                    agent.write_to(servo["pinky"], b'\x09\x60')
-                    sleep(sleepy)
-                    agent.write_to(servo["ring"], b'\x09\x60')
-                    sleep(sleepy)
-                    agent.write_to(servo["middle"], b'\x09\x60')
-                    sleep(sleepy)
-                    agent.write_to(servo["pointer"], b'\x09\x60')
-                    sleep(sleepy)
-                    agent.write_to(servo["thumb"], b'\x09\x60')
-                    sleep(sleepy)
-                    agent.write_to(command["run_count"], cmd_val["one"])
-                    sleep(sleepy)
-                    fsw = flip_switch()
-                    agent.write_to(command["activate"], fsw)
-                    print("rock processed.")
-
-                case b'paper':
-                    print("configure and activate gesture paper ...")
-                    agent.write_to(servo["pinky"], b'\x05\x64')
-                    sleep(sleepy)
-                    agent.write_to(servo["ring"], b'\x05\x64')
-                    sleep(sleepy)
-                    agent.write_to(servo["middle"], b'\x05\x64')
-                    sleep(sleepy)
-                    agent.write_to(servo["pointer"], b'\x05\x64')
-                    sleep(sleepy)
-                    agent.write_to(servo["thumb"], b'\x05\x64')
-                    sleep(sleepy)
-                    agent.write_to(command["run_count"], cmd_val["one"])
-                    sleep(sleepy)
-                    fsw = flip_switch()
-                    agent.write_to(command["activate"], fsw)
-                    print("paper processed.")
-
-                case b'scissors':
-                    print("configure and activate gesture scissors ...")
-                    agent.write_to(servo["pinky"], b'\x05\x64')
-                    sleep(sleepy)
-                    agent.write_to(servo["ring"], b'\x05\x64')
-                    sleep(sleepy)
-                    agent.write_to(servo["middle"], b'\x09\x60')
-                    sleep(sleepy)
-                    agent.write_to(servo["pointer"], b'\x09\x60')
-                    sleep(sleepy)
-                    agent.write_to(servo["thumb"], b'\x05\x64')
-                    sleep(sleepy)
-                    agent.write_to(command["run_count"], cmd_val["one"])
-                    sleep(sleepy)
-                    fsw = flip_switch()
-                    agent.write_to(command["activate"], fsw)
-                    print("scissors processed.")
-
-                case _:
-                    agent.write_to(0xFE, b'\xFF')
-                    print("default case processed.")
-
+            device.write(rps_move[msg.data])
         except Exception as e:
             print("Could not process gesture:", e)
+
+        disconnect()
 
         if msg.reply:
             await msg.respond(msg.reply, msg.data)
