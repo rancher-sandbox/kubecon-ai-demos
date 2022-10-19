@@ -40,5 +40,5 @@ spec:
   discoveryHandler:
     discoveryDetails: |
       udevRules:
-      - SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6014", GROUP="plugdev"
+      - SUBSYSTEM=="tty", KERNEL=="ttyACM[0-9]*"
     name: udev
