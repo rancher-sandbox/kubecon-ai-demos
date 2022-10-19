@@ -8,6 +8,9 @@ const sc = StringCodec();
 const nats_url = process.env.NATS_URL
 const frames_to_change = process.env.FRAME_COUNTER || 20
 
+const detection_timeout = process.env.DETECTION_TIMEOUT || 5000
+
+
 // HTTP & Websocket Server
 const app = express()
 
@@ -85,12 +88,13 @@ const addDetection = (move)=>{
     clearTimeout(timeout)
     timeout=null
   }
+
   timeout = setTimeout(()=>{
     console.log('Timed out so clearing moves')
     currentPlayerMove = ''
     lastPlayerMoves = []
     nextPlayerMoveCounter = 0
-  },5000)
+  }, detection_timeout)
 }
 
 
