@@ -8,16 +8,16 @@ spec:
   brokerSpec:
     brokerPodSpec:
       containers:
-      - image: mak3r/rps-gestures:0.0.2
+      - image: mak3r/rps-gestures:0.1.0
         name: robot-hand
       - args: 
-        - -c
-        - while true; do echo "testing"; sleep 120; done
+        - ./listen_computer_move.py
+        - "$(NATS_URL)"
         command: 
-        - '/bin/sh'
+        - 'python'
         env:
         - name: NATS_URL
-          value: nats.nats
+          value: nats://nats.nats:4222
         resources:
           limits:
             '{{PLACEHOLDER}}': "1"
