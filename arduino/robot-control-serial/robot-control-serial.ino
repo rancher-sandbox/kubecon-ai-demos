@@ -162,7 +162,7 @@ void loop() {
   if (cur_state == RUN) {
     pwm.wakeup();
     gesture();
-    delay(100);
+    delay(400);
     pwm.sleep();
     cur_state = STOP;
   }
