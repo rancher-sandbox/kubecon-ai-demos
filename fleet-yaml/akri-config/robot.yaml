@@ -11,13 +11,13 @@ spec:
       - image: mak3r/rps-gestures:0.1.0
         name: robot-hand
       - args: 
-        - ./listen_computer_move.py
+        - "./listen_computer_move.py"
         - "$(NATS_URL)"
         command: 
         - 'python'
         env:
         - name: NATS_URL
-          value: nats://nats.nats:4222
+          value: "nats://nats.nats:4222"
         resources:
           limits:
             '{{PLACEHOLDER}}': "1"
