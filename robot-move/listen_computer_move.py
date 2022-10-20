@@ -43,6 +43,7 @@ async def main(nats_server_url, loop):
         global device
         try:
             device = serial.Serial(PORT, BAUDRATE)
+            print("Serial device connected to ", device.name)
         except Exception as e:
             print("Serial device connection failed. ", e)
             device = None
@@ -70,6 +71,7 @@ async def main(nats_server_url, loop):
         try:
             # Move the robot hand
             device.write(rps_move[msg.data])
+            print("Message sent to device: ", rps_move[msg.data])
         except Exception as e:
             print("Could not process gesture:", e)
 
