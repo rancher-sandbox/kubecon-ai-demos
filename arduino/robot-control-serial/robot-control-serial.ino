@@ -2,7 +2,7 @@
 #include <Adafruit_PWMServoDriver.h>
 
 #define DEBUG 1
-//#undef DEBUG
+#undef DEBUG
 
 //Initialize arduino i2c for config data
 I2CSlaveMode agent = new I2CSlaveMode();
@@ -60,10 +60,10 @@ struct servo_map {
 servo_map sm[6] = {
   { pinky, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, YES, YES} },
   { ring, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, YES, YES} },
-  {middle, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, YES, YES} },
-  {pointer, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, YES, YES} },
-  {thumb, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, YES, YES} },
-  {wrist, {0x0280, 0x0960, 0x05C0, 0x05C0, POSITION_MIDDLE, YES, YES} }
+  { middle, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, YES, YES} },
+  { pointer, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, YES, YES} },
+  { thumb, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, YES, YES} },
+  { wrist, {0x0280, 0x0960, 0x05C0, 0x05C0, POSITION_MIDDLE, YES, YES} }
 };
 
 void setup() {
@@ -91,6 +91,11 @@ void relax(servo_map sm) {
 
 void set_position(servo_map sm) {
   if ( sm.sig[ACTIVATE] == YES ) {
+    #ifdef DEBUG
+      char buf[20 + (sizeof(uint16_t)*2)] = {0};
+      sprintf(buf, "servo: %d, position: %d", sm.s, sm.sig[POSITION] );
+      Serial.println(buf);
+    #endif
     pwm.writeMicroseconds((byte)sm.s, constrain(sm.sig[POSITION], sm.sig[MIN_EXTEND], sm.sig[MAX_EXTEND]));
     if (sm.sig[RELAX] == YES) {
       delay(RELAX_DELAY);
@@ -101,6 +106,8 @@ void set_position(servo_map sm) {
 
 void flip_state() {
   cur_state = (cur_state == RUN ? STOP : RUN);
+  Serial.print("cur_state: ");
+  Serial.println(cur_state);
 }
 
 void loop() {
@@ -133,6 +140,11 @@ void loop() {
       sm[middle].sig[POSITION] = POSITION_OPEN;
       sm[pointer].sig[POSITION] = POSITION_OPEN;
       sm[thumb].sig[POSITION] = POSITION_OPEN;
+      sm[pinky].sig[RELAX] = YES;
+      sm[ring].sig[RELAX] = YES;
+      sm[middle].sig[RELAX] = YES;
+      sm[pointer].sig[RELAX] = YES;
+      sm[thumb].sig[RELAX] = YES;
       sm[wrist].sig[ACTIVATE] = NO;
       flip_state();
     } else if (cmd == 3) {
@@ -142,6 +154,11 @@ void loop() {
       sm[middle].sig[POSITION] = POSITION_OPEN;
       sm[pointer].sig[POSITION] = POSITION_OPEN;
       sm[thumb].sig[POSITION] = POSITION_CLOSED;
+      sm[pinky].sig[RELAX] = YES;
+      sm[ring].sig[RELAX] = YES;
+      sm[middle].sig[RELAX] = NO;
+      sm[pointer].sig[RELAX] = NO;
+      sm[thumb].sig[RELAX] = YES;
       sm[wrist].sig[ACTIVATE] = NO;
       flip_state();
     }
@@ -151,8 +168,9 @@ void loop() {
   if (cur_state == RUN) {
     pwm.wakeup();
     gesture();
-    pwm.sleep();
     flip_state();
+    delay(100);
+    pwm.sleep();
   }
 }
 
