@@ -17,6 +17,7 @@ rps_move = {
 device = None
 PORT = os.environ['UDEV_DEVNODE']
 BAUDRATE = 115200
+TIMEOUT = 1
 
 async def main(nats_server_url, loop):
     async def disconnected_cb():
@@ -42,7 +43,7 @@ async def main(nats_server_url, loop):
     def connect():
         global device
         try:
-            device = serial.Serial(PORT, BAUDRATE)
+            device = serial.Serial(port=PORT, baudrate=BAUDRATE)
             print("Serial device connected to ", device.name)
         except Exception as e:
             print("Serial device connection failed. ", e)
@@ -74,8 +75,6 @@ async def main(nats_server_url, loop):
             print("Message sent to device: ", rps_move[msg.data])
         except Exception as e:
             print("Could not process gesture:", e)
-
-        disconnect()
 
         if msg.reply:
             await msg.respond(msg.reply, msg.data)

@@ -1,2 +1,2 @@
 nats-py==2.2.0
-pyftdi
+pyserial
