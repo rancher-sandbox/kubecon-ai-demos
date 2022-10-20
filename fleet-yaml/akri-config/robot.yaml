@@ -10,7 +10,7 @@ spec:
       containers:
       - image: mak3r/rps-gestures:0.1.0
         name: robot-hand
-      - args: 
+        args: 
         - "./listen_computer_move.py"
         - "$(NATS_URL)"
         command: 
