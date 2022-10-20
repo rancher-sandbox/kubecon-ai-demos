@@ -8,7 +8,7 @@ spec:
   brokerSpec:
     brokerPodSpec:
       containers:
-      - image: mak3r/rps-gestures:0.1.0
+      - image: mak3r/rps-gestures:0.1.1
         name: robot-hand
         args: 
         - "./listen_computer_move.py"
