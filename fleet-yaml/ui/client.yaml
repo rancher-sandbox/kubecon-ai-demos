@@ -27,7 +27,7 @@ spec:
     spec:
       containers:
       - name: game-client
-        image: atgracey/game-ui-client-config:latest
+        image: atgracey/game-ui-client:latest
         ports:
         - containerPort: 8080
           name: http
