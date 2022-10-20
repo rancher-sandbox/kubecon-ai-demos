@@ -68,7 +68,9 @@ servo_map sm[6] = {
 
 void setup() {
   Serial.begin(115200);
+  #ifdef DEBUG
   Serial.println("\nRobot Hand Control");
+  #endif
   pwm.begin(); //This calls Wire.begin()
   pwm.sleep();
   pwm.setPWMFreq(SERVO_FREQ);  // This is the maximum PWM frequency
@@ -109,8 +111,10 @@ void loop() {
   while (Serial.available() > 0) {
     // look for the next valid integer in the incoming serial stream:
     int cmd = Serial.parseInt(SKIP_WHITESPACE);
+    #ifdef DEBUG
     Serial.print("Command is: ");
     Serial.println(cmd);    
+    #endif
     if (cmd == 1) {
       //ROCK
       sm[pinky].sig[POSITION] = POSITION_CLOSED;
