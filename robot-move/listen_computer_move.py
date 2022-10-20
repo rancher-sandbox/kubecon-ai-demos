@@ -19,7 +19,7 @@ agent = None
 device = None
 PORT = os.environ['UDEV_DEVNODE']
 BAUDRATE = 115200
-TIMEOUT = .1
+TIMEOUT = 0 # serial.read timeout value 0 makes reads non blocking
 
 async def main(nats_server_url, loop):
     async def disconnected_cb():
