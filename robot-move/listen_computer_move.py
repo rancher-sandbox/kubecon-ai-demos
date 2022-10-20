@@ -14,12 +14,9 @@ rps_move = {
     b'win'      : b'4', 
     b'lose'     : b'5'
 }
-servo = {"pinky": 0x18, "ring": 0x18, "middle": 0x18, "pointer": 0x18, "thumb": 0x18, "wrist": 0x18, }
-agent = None
 device = None
 PORT = os.environ['UDEV_DEVNODE']
 BAUDRATE = 115200
-TIMEOUT = .1
 
 async def main(nats_server_url, loop):
     async def disconnected_cb():
@@ -45,7 +42,7 @@ async def main(nats_server_url, loop):
     def connect():
         global device
         try:
-            device = serial.Serial(PORT, BAUDRATE, TIMEOUT)
+            device = serial.Serial(PORT, BAUDRATE)
         except Exception as e:
             print("Serial device connection failed. ", e)
             device = None
