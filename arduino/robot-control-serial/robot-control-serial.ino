@@ -104,12 +104,6 @@ void set_position(servo_map sm) {
   }
 }
 
-void flip_state() {
-  cur_state = (cur_state == RUN ? STOP : RUN);
-  Serial.print("cur_state: ");
-  Serial.println(cur_state);
-}
-
 void loop() {
 
   while (Serial.available() > 0) {
@@ -130,7 +124,7 @@ void loop() {
       sm[pointer].sig[RELAX] = NO;
       sm[thumb].sig[RELAX] = NO;
       sm[wrist].sig[ACTIVATE] = NO;
-      flip_state();
+      cur_state = RUN;
     } else if (cmd == 0) {
       Serial.flush();
     } else if (cmd == 2) {
@@ -146,7 +140,7 @@ void loop() {
       sm[pointer].sig[RELAX] = YES;
       sm[thumb].sig[RELAX] = YES;
       sm[wrist].sig[ACTIVATE] = NO;
-      flip_state();
+      cur_state = RUN;
     } else if (cmd == 3) {
       //SCISSORS
       sm[pinky].sig[POSITION] = POSITION_CLOSED;
@@ -160,7 +154,7 @@ void loop() {
       sm[pointer].sig[RELAX] = NO;
       sm[thumb].sig[RELAX] = YES;
       sm[wrist].sig[ACTIVATE] = NO;
-      flip_state();
+      cur_state = RUN;
     }
 
   }
@@ -168,9 +162,9 @@ void loop() {
   if (cur_state == RUN) {
     pwm.wakeup();
     gesture();
-    flip_state();
     delay(100);
     pwm.sleep();
+    cur_state = STOP;
   }
 }
 
