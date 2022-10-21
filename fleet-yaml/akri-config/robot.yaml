@@ -38,6 +38,8 @@ spec:
         command: 
         - /bin/sh
         args: [-c, 'tail -f $(printenv UDEV_DEVNODE)']
+        securityContext:
+          privileged: true
       volumes:
       - name: dev
         hostPath:
