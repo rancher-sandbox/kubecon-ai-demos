@@ -10,8 +10,6 @@ I2CSlaveMode agent = new I2CSlaveMode();
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
-unsigned long previousMillis = 0;
-unsigned long interval = 5000;
 
 enum servo {
   pinky = 0,
@@ -24,24 +22,31 @@ enum servo {
 
 // Gesture run state. 
 // Used inside loop() to indicate turning on/off the pwm
-uint8_t RUN = 0x01;
-uint8_t STOP = 0x00;
+const uint8_t RUN = 0x01;
+const uint8_t STOP = 0x00;
 uint8_t cur_state = STOP;
+uint8_t run_count = 0x00; //How many times to run the routine
+uint8_t run_delay = 2400;
+
+enum win_pos {
+  cw = 0,
+  ccw
+} cur_win_pos = cw;
 
 // Finger run state
 // Used to determine each fingers activation when running a gesture
-uint8_t YES = 0x01;
-uint8_t NO = 0x00;
+const uint8_t YES = 0x01;
+const uint8_t NO = 0x00;
 
-uint16_t POSITION_OPEN = 0x0564;
-uint16_t POSITION_CLOSED = 0x0960;
-uint16_t POSITION_OPEN_RELAX = 0x05C0;
-uint16_t POSITION_CLOSED_RELAX = 0x08D0;
-uint16_t POSITION_MIDDLE = 0x05C0;
-uint16_t POSITION_WRIST_OPEN_CW = 0x1F4;
-uint16_t POSITION_WRIST_OPEN_CCW = 0x0960;
-uint16_t POINTER_POS = POSITION_CLOSED;
-uint8_t RELAX_DELAY = .4; //Delay in seconds between extend and relax 
+const uint16_t POSITION_OPEN = 0x0564;
+const uint16_t POSITION_CLOSED = 0x0960;
+const uint16_t POSITION_OPEN_RELAX = 0x05C0;
+const uint16_t POSITION_CLOSED_RELAX = 0x08D0;
+const uint16_t POSITION_MIDDLE = 0x05C0;
+const uint16_t POSITION_WRIST_OPEN_CW = 0x1F4;
+const uint16_t POSITION_WRIST_OPEN_CCW = 0x0960;
+const uint16_t POINTER_POS = POSITION_CLOSED;
+const uint8_t RELAX_DELAY = .4; //Delay in seconds between extend and relax 
 
 // Servo signatures
 // Indexes into the servo signatures
@@ -64,11 +69,11 @@ struct servo_map {
 };
 
 servo_map sm[6] = {
-  { pinky, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, POSITION_CLOSED_RELAX, YES, YES} },
-  { ring, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, POSITION_CLOSED_RELAX, YES, YES} },
-  { middle, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, POSITION_CLOSED_RELAX, YES, YES} },
-  { pointer, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, POSITION_CLOSED_RELAX, YES, YES} },
-  { thumb, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, POSITION_CLOSED_RELAX, YES, YES} },
+  { pinky, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, POSITION_CLOSED, YES, YES} },
+  { ring, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, POSITION_CLOSED, YES, YES} },
+  { middle, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, POSITION_CLOSED, YES, YES} },
+  { pointer, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, POSITION_CLOSED, YES, YES} },
+  { thumb, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, POSITION_CLOSED, YES, YES} },
   { wrist, {0x0280, 0x0960, 0x1F4, 0x0960, POSITION_MIDDLE, POSITION_CLOSED_RELAX, YES, YES} }
 };
 
@@ -81,6 +86,8 @@ void setup() {
   pwm.sleep();
   pwm.setPWMFreq(SERVO_FREQ);  // This is the maximum PWM frequency
 
+  //Set a default gesture when it turns on or resets
+  rock();
 }
 
 
@@ -99,8 +106,8 @@ void relax(servo_map sm) {
     pwm.writeMicroseconds((byte)sm.s, constrained_uS);
     char buf[22 + sizeof(constrained_uS) + sizeof(sm.s)] = {0};
     sprintf(buf, "final position: %d", constrained_uS);
+    Serial.println(buf);
   #endif
-  Serial.println(buf);
 }
 
 void set_position(servo_map sm) {
@@ -179,6 +186,11 @@ void scissors() {
 }
 
 void win() {
+  cur_win_pos == cw ? win_ccw() : win_cw();
+}
+
+void win_cw() {
+  cur_win_pos = cw;
   sm[pinky].sig[POSITION] = POSITION_OPEN;
   sm[ring].sig[POSITION] = POSITION_CLOSED;
   sm[middle].sig[POSITION] = POSITION_CLOSED;
@@ -201,6 +213,54 @@ void win() {
   cur_state = RUN;
 }
 
+void win_ccw() {
+  cur_win_pos = ccw;
+  sm[pinky].sig[POSITION] = POSITION_OPEN;
+  sm[ring].sig[POSITION] = POSITION_CLOSED;
+  sm[middle].sig[POSITION] = POSITION_CLOSED;
+  sm[pointer].sig[POSITION] = POSITION_CLOSED;
+  sm[thumb].sig[POSITION] = POSITION_OPEN;
+  sm[wrist].sig[POSITION] = POSITION_MIDDLE; 
+  sm[pinky].sig[RELAX_POSITION] = POSITION_OPEN;
+  sm[ring].sig[RELAX_POSITION] = POSITION_CLOSED;
+  sm[middle].sig[RELAX_POSITION] = POSITION_CLOSED;
+  sm[pointer].sig[RELAX_POSITION] = POSITION_CLOSED;
+  sm[thumb].sig[RELAX_POSITION] = POSITION_OPEN;
+  sm[wrist].sig[RELAX_POSITION] = POSITION_WRIST_OPEN_CCW; 
+  sm[pinky].sig[RELAX] = YES;
+  sm[ring].sig[RELAX] = NO;
+  sm[middle].sig[RELAX] = NO;
+  sm[pointer].sig[RELAX] = NO;
+  sm[thumb].sig[RELAX] = YES;
+  sm[wrist].sig[RELAX] = YES;
+  sm[wrist].sig[ACTIVATE] = YES;
+  cur_state = RUN;
+}
+
+void lose() {
+  cur_win_pos = ccw;
+  sm[pinky].sig[POSITION] = POSITION_CLOSED;
+  sm[ring].sig[POSITION] = POSITION_CLOSED;
+  sm[middle].sig[POSITION] = POSITION_CLOSED;
+  sm[pointer].sig[POSITION] = POSITION_OPEN;
+  sm[thumb].sig[POSITION] = POSITION_OPEN;
+  sm[wrist].sig[POSITION] = POSITION_WRIST_OPEN_CCW; 
+  sm[pinky].sig[RELAX_POSITION] = POSITION_CLOSED;
+  sm[ring].sig[RELAX_POSITION] = POSITION_CLOSED;
+  sm[middle].sig[RELAX_POSITION] = POSITION_CLOSED;
+  sm[pointer].sig[RELAX_POSITION] = POSITION_OPEN;
+  sm[thumb].sig[RELAX_POSITION] = POSITION_OPEN;
+  sm[wrist].sig[RELAX_POSITION] = POSITION_MIDDLE; 
+  sm[pinky].sig[RELAX] = NO;
+  sm[ring].sig[RELAX] = NO;
+  sm[middle].sig[RELAX] = NO;
+  sm[pointer].sig[RELAX] = NO;
+  sm[thumb].sig[RELAX] = NO;
+  sm[wrist].sig[RELAX] = YES;
+  sm[wrist].sig[ACTIVATE] = YES;
+  cur_state = RUN;
+}
+
 void loop() {
   while (Serial.available() > 0) {
     // look for the next valid integer in the incoming serial stream:
@@ -211,26 +271,42 @@ void loop() {
     //#endif
     if (cmd == 1) {
       //ROCK
+      run_delay = 2400;
       rock();
     } else if (cmd == 0) {
       Serial.flush();
     } else if (cmd == 2) {
       //PAPER
+      run_delay = 2400;
       paper();
     } else if (cmd == 3) {
       //SCISSORS
+      run_delay = 2400;
       scissors();
     } else if (cmd == 4) {
       //Winner
+      run_count = 8;
+      run_delay = 400;
       win();
+    } else if (cmd == 5) {
+      //Lose
+      run_delay = 2400;
+      lose();
     }
 
+  }
+
+  if (run_count > 0) {
+    win();
+    cur_state = RUN;
+    run_count--;
+    run_delay = 400;
   }
 
   if (cur_state == RUN) {
     pwm.wakeup();
     gesture();
-    delay(2400);
+    delay(run_delay);
     pwm.sleep();
     cur_state = STOP;
   }
