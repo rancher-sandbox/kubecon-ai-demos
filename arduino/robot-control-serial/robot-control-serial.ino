@@ -2,7 +2,7 @@
 #include <Adafruit_PWMServoDriver.h>
 
 #define DEBUG 1
-#undef DEBUG
+//#undef DEBUG
 
 //Initialize arduino i2c for config data
 I2CSlaveMode agent = new I2CSlaveMode();
@@ -27,6 +27,7 @@ enum servo {
 uint8_t RUN = 0x01;
 uint8_t STOP = 0x00;
 uint8_t cur_state = STOP;
+
 // Finger run state
 // Used to determine each fingers activation when running a gesture
 uint8_t YES = 0x01;
@@ -34,11 +35,13 @@ uint8_t NO = 0x00;
 
 uint16_t POSITION_OPEN = 0x0564;
 uint16_t POSITION_CLOSED = 0x0960;
+uint16_t POSITION_OPEN_RELAX = 0x05C0;
+uint16_t POSITION_CLOSED_RELAX = 0x08D0;
 uint16_t POSITION_MIDDLE = 0x05C0;
 uint16_t POSITION_WRIST_OPEN_CW = 0x1F4;
 uint16_t POSITION_WRIST_OPEN_CCW = 0x0960;
 uint16_t POINTER_POS = POSITION_CLOSED;
-uint8_t RELAX_DELAY = .5; //Delay in seconds between extend and relax 
+uint8_t RELAX_DELAY = .4; //Delay in seconds between extend and relax 
 
 // Servo signatures
 // Indexes into the servo signatures
@@ -49,6 +52,7 @@ enum signature {
   MIN_RELAX,
   MAX_RELAX,
   POSITION,
+  RELAX_POSITION,
   ACTIVATE,
   RELAX,
 };
@@ -56,16 +60,16 @@ enum signature {
 //servo signature mapping  
 struct servo_map {
   servo s;
-  uint16_t sig[7];
+  uint16_t sig[8];
 };
 
 servo_map sm[6] = {
-  { pinky, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, YES, YES} },
-  { ring, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, YES, YES} },
-  { middle, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, YES, YES} },
-  { pointer, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, YES, YES} },
-  { thumb, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, YES, YES} },
-  { wrist, {0x0280, 0x0960, 0x05C0, 0x05C0, POSITION_MIDDLE, YES, YES} }
+  { pinky, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, POSITION_CLOSED_RELAX, YES, YES} },
+  { ring, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, POSITION_CLOSED_RELAX, YES, YES} },
+  { middle, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, POSITION_CLOSED_RELAX, YES, YES} },
+  { pointer, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, POSITION_CLOSED_RELAX, YES, YES} },
+  { thumb, {0x0564, 0x0960, 0x05C0, 0x08D0, POSITION_CLOSED, POSITION_CLOSED_RELAX, YES, YES} },
+  { wrist, {0x0280, 0x0960, 0x1F4, 0x0960, POSITION_MIDDLE, POSITION_CLOSED_RELAX, YES, YES} }
 };
 
 void setup() {
@@ -90,24 +94,111 @@ void gesture() {
 }
 
 void relax(servo_map sm) {
-  Serial.println("relaxing");
-  pwm.writeMicroseconds((byte)sm.s, constrain(sm.sig[POSITION], sm.sig[MIN_RELAX], sm.sig[MAX_RELAX]));
+  uint16_t constrained_uS = constrain(sm.sig[RELAX_POSITION], sm.sig[MIN_RELAX], sm.sig[MAX_RELAX]);
+  #ifdef DEBUG
+    pwm.writeMicroseconds((byte)sm.s, constrained_uS);
+    char buf[22 + sizeof(constrained_uS) + sizeof(sm.s)] = {0};
+    sprintf(buf, "final position: %d", constrained_uS);
+  #endif
+  Serial.println(buf);
 }
 
 void set_position(servo_map sm) {
   if ( sm.sig[ACTIVATE] == YES ) {
+    uint16_t constrained_uS = constrain(sm.sig[POSITION], sm.sig[MIN_EXTEND], sm.sig[MAX_EXTEND]);
     #ifdef DEBUG
-      char buf[20 + (sizeof(uint16_t)*2)] = {0};
-      sprintf(buf, "servo: %d, position: %d", sm.s, sm.sig[POSITION] );
+      char buf[30 + sizeof(sm.s)] = {0};
+      sprintf(buf, "[finger: %d]\nstart position: %d", sm.s, constrained_uS);
       Serial.println(buf);
     #endif
-    Serial.println("positioning");
-    pwm.writeMicroseconds((byte)sm.s, constrain(sm.sig[POSITION], sm.sig[MIN_EXTEND], sm.sig[MAX_EXTEND]));
+
+    pwm.writeMicroseconds((byte)sm.s, constrained_uS);
     if (sm.sig[RELAX] == YES) {
       delay(RELAX_DELAY);
       relax(sm);
     }
   }
+}
+
+void rock() {
+  sm[pinky].sig[POSITION] = POSITION_CLOSED;
+  sm[ring].sig[POSITION] = POSITION_CLOSED;
+  sm[middle].sig[POSITION] = POSITION_CLOSED;
+  sm[pointer].sig[POSITION] = POSITION_CLOSED;
+  sm[thumb].sig[POSITION] = POSITION_CLOSED;
+  sm[wrist].sig[POSITION] = POSITION_MIDDLE; 
+  sm[pinky].sig[RELAX] = NO;
+  sm[ring].sig[RELAX] = NO;
+  sm[middle].sig[RELAX] = NO;
+  sm[pointer].sig[RELAX] = NO;
+  sm[thumb].sig[RELAX] = NO;
+  sm[wrist].sig[RELAX] = NO;
+  sm[wrist].sig[ACTIVATE] = YES;
+  cur_state = RUN;
+}
+
+void paper() {
+  sm[pinky].sig[POSITION] = POSITION_OPEN;
+  sm[ring].sig[POSITION] = POSITION_OPEN;
+  sm[middle].sig[POSITION] = POSITION_OPEN;
+  sm[pointer].sig[POSITION] = POSITION_OPEN;
+  sm[thumb].sig[POSITION] = POSITION_OPEN;
+  sm[wrist].sig[POSITION] = POSITION_MIDDLE; 
+  sm[pinky].sig[RELAX_POSITION] = POSITION_OPEN_RELAX;
+  sm[ring].sig[RELAX_POSITION] = POSITION_OPEN_RELAX;
+  sm[middle].sig[RELAX_POSITION] = POSITION_OPEN_RELAX;
+  sm[pointer].sig[RELAX_POSITION] = POSITION_OPEN_RELAX;
+  sm[thumb].sig[RELAX_POSITION] = POSITION_OPEN_RELAX;
+  sm[pinky].sig[RELAX] = YES;
+  sm[ring].sig[RELAX] = YES;
+  sm[middle].sig[RELAX] = YES;
+  sm[pointer].sig[RELAX] = YES;
+  sm[thumb].sig[RELAX] = YES;
+  sm[wrist].sig[RELAX] = NO;
+  sm[wrist].sig[ACTIVATE] = YES;
+  cur_state = RUN;
+}
+
+void scissors() {
+  sm[pinky].sig[POSITION] = POSITION_CLOSED;
+  sm[ring].sig[POSITION] = POSITION_CLOSED;
+  sm[middle].sig[POSITION] = POSITION_OPEN;
+  sm[pointer].sig[POSITION] = POSITION_OPEN;
+  sm[thumb].sig[POSITION] = POSITION_CLOSED;
+  sm[wrist].sig[POSITION] = POSITION_MIDDLE; 
+  sm[middle].sig[RELAX_POSITION] = POSITION_OPEN_RELAX;
+  sm[pointer].sig[RELAX_POSITION] = POSITION_OPEN_RELAX;
+  sm[pinky].sig[RELAX] = NO;
+  sm[ring].sig[RELAX] = NO;
+  sm[middle].sig[RELAX] = YES;
+  sm[pointer].sig[RELAX] = YES;
+  sm[thumb].sig[RELAX] = NO;
+  sm[wrist].sig[RELAX] = NO;
+  sm[wrist].sig[ACTIVATE] = YES;
+  cur_state = RUN;
+}
+
+void win() {
+  sm[pinky].sig[POSITION] = POSITION_OPEN;
+  sm[ring].sig[POSITION] = POSITION_CLOSED;
+  sm[middle].sig[POSITION] = POSITION_CLOSED;
+  sm[pointer].sig[POSITION] = POSITION_CLOSED;
+  sm[thumb].sig[POSITION] = POSITION_OPEN;
+  sm[wrist].sig[POSITION] = POSITION_MIDDLE; 
+  sm[pinky].sig[RELAX_POSITION] = POSITION_OPEN;
+  sm[ring].sig[RELAX_POSITION] = POSITION_CLOSED;
+  sm[middle].sig[RELAX_POSITION] = POSITION_CLOSED;
+  sm[pointer].sig[RELAX_POSITION] = POSITION_CLOSED;
+  sm[thumb].sig[RELAX_POSITION] = POSITION_OPEN;
+  sm[wrist].sig[RELAX_POSITION] = POSITION_WRIST_OPEN_CW; 
+  sm[pinky].sig[RELAX] = YES;
+  sm[ring].sig[RELAX] = NO;
+  sm[middle].sig[RELAX] = NO;
+  sm[pointer].sig[RELAX] = NO;
+  sm[thumb].sig[RELAX] = YES;
+  sm[wrist].sig[RELAX] = YES;
+  sm[wrist].sig[ACTIVATE] = YES;
+  cur_state = RUN;
 }
 
 void loop() {
@@ -120,64 +211,18 @@ void loop() {
     //#endif
     if (cmd == 1) {
       //ROCK
-      sm[pinky].sig[POSITION] = POSITION_CLOSED;
-      sm[ring].sig[POSITION] = POSITION_CLOSED;
-      sm[middle].sig[POSITION] = POSITION_CLOSED;
-      sm[pointer].sig[POSITION] = POSITION_CLOSED;
-      sm[thumb].sig[POSITION] = POSITION_CLOSED;
-      sm[pinky].sig[RELAX] = NO;
-      sm[ring].sig[RELAX] = NO;
-      sm[middle].sig[RELAX] = NO;
-      sm[pointer].sig[RELAX] = NO;
-      sm[thumb].sig[RELAX] = NO;
-      sm[wrist].sig[ACTIVATE] = NO;
-      cur_state = RUN;
+      rock();
     } else if (cmd == 0) {
       Serial.flush();
     } else if (cmd == 2) {
       //PAPER
-      sm[pinky].sig[POSITION] = POSITION_OPEN;
-      sm[ring].sig[POSITION] = POSITION_OPEN;
-      sm[middle].sig[POSITION] = POSITION_OPEN;
-      sm[pointer].sig[POSITION] = POSITION_OPEN;
-      sm[thumb].sig[POSITION] = POSITION_OPEN;
-      sm[pinky].sig[RELAX] = YES;
-      sm[ring].sig[RELAX] = YES;
-      sm[middle].sig[RELAX] = YES;
-      sm[pointer].sig[RELAX] = YES;
-      sm[thumb].sig[RELAX] = YES;
-      sm[wrist].sig[ACTIVATE] = NO;
-      cur_state = RUN;
+      paper();
     } else if (cmd == 3) {
       //SCISSORS
-      sm[pinky].sig[POSITION] = POSITION_CLOSED;
-      sm[ring].sig[POSITION] = POSITION_CLOSED;
-      sm[middle].sig[POSITION] = POSITION_OPEN;
-      sm[pointer].sig[POSITION] = POSITION_OPEN;
-      sm[thumb].sig[POSITION] = POSITION_CLOSED;
-      sm[pinky].sig[RELAX] = YES;
-      sm[ring].sig[RELAX] = YES;
-      sm[middle].sig[RELAX] = NO;
-      sm[pointer].sig[RELAX] = NO;
-      sm[thumb].sig[RELAX] = YES;
-      sm[wrist].sig[ACTIVATE] = NO;
-      cur_state = RUN;
+      scissors();
     } else if (cmd == 4) {
       //Winner
-      sm[pinky].sig[POSITION] = POSITION_OPEN;
-      sm[ring].sig[POSITION] = POSITION_CLOSED;
-      sm[middle].sig[POSITION] = POSITION_CLOSED;
-      sm[pointer].sig[POSITION] = POSITION_CLOSED;
-      sm[thumb].sig[POSITION] = POSITION_OPEN;
-      sm[wrist].sig[POSITION] = POSITION_WRIST_OPEN_CW; 
-      sm[pinky].sig[RELAX] = YES;
-      sm[ring].sig[RELAX] = YES;
-      sm[middle].sig[RELAX] = YES;
-      sm[pointer].sig[RELAX] = YES;
-      sm[thumb].sig[RELAX] = YES;
-      sm[wrist].sig[RELAX] = YES;
-      sm[wrist].sig[ACTIVATE] = YES;
-      cur_state = RUN;
+      win();
     }
 
   }
@@ -185,7 +230,7 @@ void loop() {
   if (cur_state == RUN) {
     pwm.wakeup();
     gesture();
-    delay(800);
+    delay(2400);
     pwm.sleep();
     cur_state = STOP;
   }
