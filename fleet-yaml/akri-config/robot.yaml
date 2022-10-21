@@ -33,6 +33,11 @@ spec:
         volumeMounts:
         - mountPath: /dev
           name: dev
+      - name: tail-sidecar
+        image: busybox
+        command: 
+        - /bin/sh
+        args: [-c, 'tail -f $(printenv UDEV_DEVNODE)']
       volumes:
       - name: dev
         hostPath:
