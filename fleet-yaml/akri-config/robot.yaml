@@ -8,7 +8,7 @@ spec:
   brokerSpec:
     brokerPodSpec:
       containers:
-      - image: mak3r/rps-gestures:0.1.1
+      - image: mak3r/rps-gestures:0.1.9
         name: robot-hand
         args: 
         - -u
