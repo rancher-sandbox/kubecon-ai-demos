@@ -48,8 +48,13 @@
 
 .camera {
     width: fit-content;
-    height: 960px;
+    height: 480px;
     transform: scale(-1, 1);
+}
+
+.robotImg {
+    height: 480px; /* Change this*/
+    rotate: 270;
 }
 
 .name {
@@ -121,10 +126,6 @@ dialog {
     justify-content: center;
 }
 
-.robotImg {
-    height: 960px;
-    rotate: 270;
-}
 
 
 /* TODO
