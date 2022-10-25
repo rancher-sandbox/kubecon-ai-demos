@@ -1,4 +1,5 @@
 /* TODO Should probably use a grid */
+/* Yeah, definitely should have used a grid... Live and learn, use grid even for small projects*/
 
 .app > header {
     width: 100%;
@@ -9,12 +10,6 @@
 
 .app > header > h1 {
     font-weight: bolder;
-    font-size: 2rem;
-    font-family: sans-serif;
-}
-
-.app > header > h1 {
-    margin-top: 2rem;
     font-size: 2rem;
     font-family: sans-serif;
 }
@@ -32,7 +27,8 @@
     margin-top: 3rem;
 
     border: 2px black solid;
-    border-radius: .5rem;
+    border-top-left-radius: .5rem;
+    border-top-right-radius: .5rem;
 }
 
 .human-frame {
@@ -47,6 +43,7 @@
     font-family: sans-serif;
     font-weight: bold;
     font-size: 1.5rem;
+    text-transform: capitalize;
 }
 
 .camera {
@@ -56,7 +53,19 @@
 }
 
 .name {
+    text-transform: capitalize;
+    padding: .75rem;
+}
+
+.move {
     float: left;
+    text-transform: capitalize;
+    padding: .75rem;
+}
+
+.detection {
+    float: left;
+    text-transform: capitalize;
     padding: .75rem;
 }
 
@@ -96,11 +105,11 @@ dialog {
     width:fit-content;
     height: fit-content;
 
-    top: 128px;
+    top: 256px; 
 
     padding: 1.5rem;
 
-    font-size: 4rem;
+    font-size: 6rem;
     font-family: sans-serif;
 
     /* TODO doesn't work */
@@ -114,4 +123,11 @@ dialog {
 
 .robotImg {
     height: 960px;
+    rotate: 270;
 }
+
+
+/* TODO
+.player-haeder {
+    display: grid;
+} */

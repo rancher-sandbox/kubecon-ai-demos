@@ -1,6 +1,4 @@
-import React, { useEffect, memo, useState } from 'react'
-import { loadPlayer } from './rtsp-lib.js'
-
+import React, { useEffect, memo } from 'react'
 
 let player = null
 
@@ -25,23 +23,9 @@ function RTSP({
     player = new window.JSMpeg.Player(src, {
       canvas: playerCamRef.current,
       audio: false
+      // ,streaming: true // TODO
+      // disableGl ?
     })
-
-
-    // console.log('UseEffect -- ', playerCamRef)
-    // if (!playerCamRef || !playerCamRef.current) {console.log('No ref');return}
-    // loadPlayer({
-    //   url: src,
-    //   canvas: playerCamRef.current,
-    //   audio: false,
-    //   onDisconnect: (lp) => {
-    //     if(!!lp && typeof lp.destroy == 'function') {
-    //       console.log('Destroying player -- ', lp)
-    //       lp.destroy()
-    //       setPlayerCamRef(React.createRef())
-    //     }
-    //   }
-    // })
 
   }, [playerCamRef, src])
 

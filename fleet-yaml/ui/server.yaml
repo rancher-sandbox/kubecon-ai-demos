@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: game-server
-        image: atgracey/game-ui-server:latest
+        image: atgracey/game-ui-server-onsite:latest
         command: ['node', 'server.mjs']
         env: 
         - name: NATS_URL

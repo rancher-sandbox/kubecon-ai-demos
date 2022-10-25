@@ -5,10 +5,11 @@ import { Server } from "socket.io"
 import { connect, StringCodec } from 'nats'
 const sc = StringCodec();
 
-const nats_url = process.env.NATS_URL
-const frames_to_change = process.env.FRAME_COUNTER || 20
-
-const detection_timeout = process.env.DETECTION_TIMEOUT || 5000
+const NATS_URL = process.env.NATS_URL
+const TRACE = process.env.TRACE || false
+const FRAMES_BEFORE_CHANGE = process.env.FRAME_COUNTER || 10
+const DETECTION_TIMEOUT = process.env.DETECTION_TIMEOUT || 5000
+const BROADCAST_ALL_DETECTIONS = process.env.BROADCAST_ALL_DETECTIONS || true
 
 
 // HTTP & Websocket Server
@@ -30,21 +31,28 @@ httpServer.listen(process.env.PORT || 8080, () => {
   console.log('Listening')
 })
 
-const natsClient = await connect({servers:[nats_url]})
+const natsClient = await connect({servers:[NATS_URL]})
 
 const sub = natsClient.subscribe('>')
 
-
-const publishAfterTime = (topic, msg, delay)=>{
-  return new Promise((resolve)=>{
+const timoutAsync = (delay) => (
+  new Promise((resolve)=>{
     setTimeout(()=>{
-      natsClient.publish(topic, sc.encode(msg))
       resolve()
     },delay)
   })
+)
+
+const publishAfterTime = async (topic, msg, delay)=>{
+  await timoutAsync(delay)
+  natsClient.publish(topic, sc.encode(msg))
 }
 
-const runRound = async ()=>{
+let roundStarting = false //MUTEX
+const runRound = async (cheat)=>{ // TODO Cheat mode
+  if(roundStarting) return
+  roundStarting = true
+  
   console.log('round start')
 
   natsClient.publish('round.start', "")
@@ -53,14 +61,16 @@ const runRound = async ()=>{
   await publishAfterTime('round.countdown', "2", 1000)
   await publishAfterTime('round.countdown', "1", 1000)
 
-  //TODO parallelize with wait time
+  const natsProm = natsClient.request('get_computer_move', "", {timeout:1000})
 
-  const {data} = await natsClient.request('get_computer_move', "", {timeout:1000})
+  const [{data}, ..._]  = await Promise.all([natsProm, timoutAsync(1000)])
   const computer_move = sc.decode(data)
 
-  await publishAfterTime('round.end', JSON.stringify({
+  natsClient.publish('round.end', JSON.stringify({
     robotPlay: computer_move.toUpperCase()
-  }), 1000)
+  }))
+
+  roundStarting = false
 } 
 
 
@@ -69,8 +79,6 @@ const runRound = async ()=>{
 let currentPlayerMove = ''
 let nextPlayerMove = ''
 let nextPlayerMoveCounter = 0
-
-// TODO timeouts for reset on no move
 
 let timeout = null
 
@@ -84,7 +92,7 @@ const addDetection = (move)=>{
     lastPlayerMoves.shift()
   }
 
-  if (!timeout) {
+  if (!!timeout) {
     clearTimeout(timeout)
     timeout=null
   }
@@ -94,7 +102,9 @@ const addDetection = (move)=>{
     currentPlayerMove = ''
     lastPlayerMoves = []
     nextPlayerMoveCounter = 0
-  }, detection_timeout)
+
+    broadcast('detection', '')
+  }, DETECTION_TIMEOUT)
 }
 
 
@@ -116,23 +126,24 @@ const broadcast = (topic, message)=>{
 
 
 const startSub = async () => {
-
   // WTF is this pattern...
   // From https://github.com/nats-io/nats.js/blob/main/examples/nats-sub.js
   for await (const m of sub) {
     const topic = m.subject
     const message = sc.decode(m.data)
-    //console.log(`[${sub.getProcessed()}]: ${topic}: ${message}`)
+    if(TRACE) console.log(`[${sub.getProcessed()}]: ${topic}: ${message}`)
 
     if(topic == 'human_move') {
-      //currentPlayerMove = message
+      if (BROADCAST_ALL_DETECTIONS) broadcast('human_move', message)
+      
+      // Only change "current move" if player stays steady for several frames
       if(currentPlayerMove != message ) {
         if(nextPlayerMove == message) { // if still same as last frame(s)
-          if (++nextPlayerMoveCounter > frames_to_change){ // increment counter and only change when enough frames in a row (detection has stayed the same for a while)
+          if (++nextPlayerMoveCounter > FRAMES_BEFORE_CHANGE){ // increment counter and only change when enough frames in a row (detection has stayed the same for a while)
             addDetection(message)
             broadcast('detection', currentPlayerMove)
             if(shouldStart()) {
-              runRound()
+              runRound(false)
             }
           }
         } else { // reset counter
@@ -165,5 +176,49 @@ const startSub = async () => {
   }
 }
 
-
 startSub().then() 
+
+
+
+// Testing and manual trigger
+const formPageHtml = `
+<html>
+<head>
+<title>RPS Control</title>
+<style>
+form {
+  width: 100%;
+  height: 50%;
+}
+button {
+  width: 100%;
+  height: 100%;
+}
+</style>
+</head>
+<body>
+  <form action="#?cheat=no" method="GET">
+    <button type="submit">Start Game</button>
+  </form>
+  <form action="#?cheat=yes" method="GET">
+    <button type="submit">Cheat</button>
+  </form>
+</body>
+</html>
+`
+
+app.post('/runRound', async (req,res)=>{
+  console.log('Query: ',req.query)
+  if (!!req.query.cheat) {
+    if(req.query.cheat ==  'no')
+      runRound(false)
+    else
+      runRound(true)
+  }
+  res.send(formPageHtml)
+})
+
+
+app.get('/runRound', async (req,res)=>{
+  res.send(formPageHtml)
+})
