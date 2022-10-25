@@ -8,7 +8,7 @@ spec:
   brokerSpec:
     brokerPodSpec:
       containers:
-      - image: mak3r/rps-gestures:0.1.1
+      - image: mak3r/rps-gestures:0.1.9
         name: robot-hand
         args: 
         - -u
@@ -33,6 +33,13 @@ spec:
         volumeMounts:
         - mountPath: /dev
           name: dev
+      - name: tail-sidecar
+        image: busybox
+        command: 
+        - /bin/sh
+        args: [-c, 'tail -f $(printenv UDEV_DEVNODE)']
+        securityContext:
+          privileged: true
       volumes:
       - name: dev
         hostPath:
