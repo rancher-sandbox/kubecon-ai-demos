@@ -8,12 +8,17 @@ spec:
   brokerSpec:
     brokerPodSpec:
       containers:
-      - image: mak3r/rps-gestures:latest
+      - image: mak3r/rps-gestures:0.1.9
         name: robot-hand
-        command: ['python', 'gesture.py']
+        args: 
+        - -u
+        - "./listen_computer_move.py"
+        - "$(NATS_URL)"
+        command: 
+        - 'python'
         env:
         - name: NATS_URL
-          value: nats.nats
+          value: "nats://nats.nats:4222"
         resources:
           limits:
             '{{PLACEHOLDER}}': "1"
@@ -28,6 +33,13 @@ spec:
         volumeMounts:
         - mountPath: /dev
           name: dev
+      - name: tail-sidecar
+        image: busybox
+        command: 
+        - /bin/sh
+        args: [-c, 'tail -f $(printenv UDEV_DEVNODE)']
+        securityContext:
+          privileged: true
       volumes:
       - name: dev
         hostPath:
@@ -36,5 +48,5 @@ spec:
   discoveryHandler:
     discoveryDetails: |
       udevRules:
-      - SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6014", GROUP="plugdev"
+      - SUBSYSTEM=="tty", KERNEL=="ttyACM[0-9]*"
     name: udev
