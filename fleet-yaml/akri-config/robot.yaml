@@ -9,6 +9,7 @@ spec:
     brokerPodSpec:
       containers:
       - image: mak3r/rps-gestures:0.1.9
+        imagePullPolicy: IfNotPresent
         name: robot-hand
         args: 
         - -u

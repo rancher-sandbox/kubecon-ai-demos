@@ -17,7 +17,8 @@ spec:
     spec:
       containers:
       - name: rtsp-server
-        image: atgracey/game-ui-server-rtsp:latest
+        image: atgracey/game-ui-server-rtsp:stable
+        imagePullPolicy: IfNotPresent
         command: ['node', 'server.mjs']
         env:
         - name: RTSP_URL
