@@ -1,5 +1,6 @@
 
 function EventLog(props) {
+    if (!props.show) return null
 
     return (
     <div className="event-log">

@@ -19,6 +19,9 @@ spec:
       - name: rtsp-server
         image: atgracey/game-ui-server-rtsp:latest
         command: ['node', 'server.mjs']
+        env:
+        - name: RTSP_URL
+          value: rtsp://udev-camera-svc.akri-discovered:8554/rps
         ports:
         - containerPort: 8080
           name: http

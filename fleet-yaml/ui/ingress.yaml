@@ -15,18 +15,18 @@ spec:
             name: game-server
             port: 
               name: http
+      - path: /runRound
+        pathType: Exact
+        backend:
+          service:
+            name: game-server
+            port: 
+              name: http
       - path: /
         pathType: Prefix
         backend:
           service:
             name: game-client
-            port: 
-              name: http
-      - path: /runRound
-        pathType: Exact
-        backend:
-          service:
-            name: game-testserver
             port: 
               name: http
       - path: /stream

@@ -11,14 +11,16 @@ import RobotPlay from './components/RobotPlay.js'
 
 import EventTranslator from './EventTranslator.js'
 
+let waitText = 'Show "rock", "paper", "scissors" in order to start a count down and play against the computer!'
 
 function App() { 
     const [logs, setLog] = useState([])
-    const [config, setConfig] = useState({events: '/events', camera: ''}) //`ws://${location.host}/stream`
+    const [config, setConfig] = useState({events: '/events', camera: '', showLog: true})
     const [score, setScore] = useState({robot: 0, human: 0})
-    const [message, setMessage] = useState({duration:0, text:'Wave to start a count down then play against the computer!'})
-    const [gameState, setGameState] = useState('WAITING_TO_START')
+    const [message, setMessage] = useState({duration:0, text: waitText})
+
     const [robotPlay, setRobotPlay] = useState('')
+    const [humanPlay, setHumanPlay] = useState('')
 
 
     // Set up the eventing system and state machine
@@ -31,11 +33,16 @@ function App() {
         setConfig((prevConfig)=>(Object.assign({},prevConfig,newConfig)))
 
         const socket = io(newConfig.events)
-        const fsm = new EventTranslator(socket)
+        const fsm = new EventTranslator(socket, newConfig)
 
         fsm.on('score', (msg)=>{setScore(msg)})
         fsm.on('robotPlay', (msg)=>{setRobotPlay(msg)})
-        fsm.on('gameState', (msg)=>{setGameState(msg)})
+        fsm.on('detection', (msg)=>{
+            setHumanPlay(msg)
+            if(!msg) {
+                setMessage({duration:0, text: waitText})
+            }
+        })
         fsm.on('prompt', (msg)=>{setMessage(msg)})
 
         fsm.on('log', (line)=>{
@@ -51,21 +58,20 @@ function App() {
         <div className="app">
             <header>
                 <h1>Can you beat a robot in Rock Paper Scissors?</h1>
-                <h2>Wave to start a count down then play against the computer!</h2>
             </header>
 
             <div class="center">
-                <Player name="human" headerColor="#2453ff" score={score.human}>
+                <Player name="human" headerColor="#2453ff" score={score.human} move={humanPlay.toLowerCase()}>
                     {Stream}
                 </Player>
 
                 <div className='vs'>VS</div>
                 
-                <Player name="robot" headerColor="#fe7c3f" score={score.robot}>
+                <Player name="robot" headerColor="#fe7c3f" score={score.robot} move={robotPlay.toLowerCase()}>
                     <RobotPlay move={robotPlay} />
                 </Player>
             </div>
-            <EventLog logs={logs}/>
+            <EventLog logs={logs} show={config.showLog}/>
 
             <TimedDialog duration={message.duration} message={message.text}/>
         </div>
