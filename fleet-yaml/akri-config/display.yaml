@@ -16,6 +16,7 @@ spec:
         - name: DISCOVERY_HANDLERS_DIRECTORY
           value: /var/lib/akri
         image: atgracey/display-discover:latest
+        imagePullPolicy: IfNotPresent
         name: display-discover
         securityContext:
           privileged: true
@@ -91,7 +92,7 @@ spec:
             - name: DBUS_SESSION_BUS_ADDRESS
               value: unix:path=/run/user/0/bus
           image: registry.opensuse.org/home/atgracey/wallboardos/15.4/wallboardos:lxde-15.4
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: true
             privileged: true
