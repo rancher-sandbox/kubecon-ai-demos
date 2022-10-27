@@ -54,7 +54,7 @@ spec:
         - name: DBUS_SESSION_BUS_ADDRESS
           value: unix:path=/run/user/0/bus
         image: registry.opensuse.org/home/atgracey/wallboardos/15.4/wallboardos:lxde-15.4
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         name: x11
         securityContext:
           allowPrivilegeEscalation: true

@@ -7,8 +7,8 @@ const sc = StringCodec();
 
 const NATS_URL = process.env.NATS_URL
 const TRACE = process.env.TRACE || false
-const FRAMES_BEFORE_CHANGE = process.env.FRAME_COUNTER || 10
-const DETECTION_TIMEOUT = process.env.DETECTION_TIMEOUT || 5000
+const FRAMES_BEFORE_CHANGE = process.env.FRAME_COUNTER || 8
+const DETECTION_TIMEOUT = process.env.DETECTION_TIMEOUT || 15000
 const BROADCAST_ALL_DETECTIONS = process.env.BROADCAST_ALL_DETECTIONS || true
 
 
@@ -66,9 +66,9 @@ const runRound = async (cheat)=>{ // TODO Cheat mode
   const [{data}, ..._]  = await Promise.all([natsProm, timoutAsync(1000)])
   const computer_move = sc.decode(data)
 
-  natsClient.publish('round.end', JSON.stringify({
+  natsClient.publish('round.end', sc.encode(JSON.stringify({
     robotPlay: computer_move.toUpperCase()
-  }))
+  })))
 
   roundStarting = false
 } 
@@ -93,8 +93,13 @@ const addDetection = (move)=>{
   }
 
   if (!!timeout) {
+    console.log('Clearing timeout2')
     clearTimeout(timeout)
-    timeout=null
+    timeout = null
+
+  } else {
+    console.log('Not clearing timeout2')
+
   }
 
   timeout = setTimeout(()=>{

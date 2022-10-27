@@ -8,8 +8,9 @@ spec:
   brokerSpec:
     brokerPodSpec:
       containers:
-      - image: atgracey/gstreamer:latest
+      - image: atgracey/gstreamer:stable
         name: udev-camera-broker
+        imagePullPolicy: IfNotPresent
         command: ['/rtsp-simple-server']
         resources:
           limits:

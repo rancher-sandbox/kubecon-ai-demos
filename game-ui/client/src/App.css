@@ -7,16 +7,24 @@
     margin-top: 2rem;
 }
 
+body {
+    background-color: #000;
+}
 
 .app > header > h1 {
     font-weight: bolder;
-    font-size: 2rem;
+    font-size: 9rem;
     font-family: sans-serif;
+    color:#FFF
 }
 
 .vs {
     float:left;
     margin-top: 220px;
+    color: white;
+    font-weight: bolder;
+    font-size: 6em;
+    display: none;
 }
 
 .player-frame {
@@ -53,12 +61,14 @@
 }
 
 .robotImg {
-    height: 480px; /* Change this*/
-    rotate: 270;
+    height: 640px; /* Change this*/
+    margin-top: -80px;
+    margin-left: 80px;
+    transform: rotate(270deg);
 }
 
 .name {
-    text-transform: capitalize;
+    text-transform: uppercase;
     padding: .75rem;
 }
 
@@ -81,6 +91,7 @@
 
 
 .event-log {
+    display: none;
     position: absolute;
     width: 100%;
     bottom: 0px;
@@ -110,11 +121,13 @@ dialog {
     width:fit-content;
     height: fit-content;
 
-    top: 256px; 
+    top: 340px; 
+    margin-right: auto;
+    margin-left: auto;
 
     padding: 1.5rem;
 
-    font-size: 6rem;
+    font-size: 5rem;
     font-family: sans-serif;
 
     /* TODO doesn't work */
@@ -124,6 +137,7 @@ dialog {
 .center {
     display: flex;
     justify-content: center;
+    margin-top: 128px;
 }
 
 

@@ -18,4 +18,5 @@ spec:
       containers:
       - name: rps-move-detector
         image: sanjayrancher/rps-move-detector
+        imagePullPolicy: IfNotPresent
         args: ['rtsp://udev-camera-svc.akri-discovered:8554/rps', 'nats://nats.nats:4222']

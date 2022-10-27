@@ -22,8 +22,8 @@ function RTSP({
     console.log('Creating player for real')
     player = new window.JSMpeg.Player(src, {
       canvas: playerCamRef.current,
-      audio: false
-      // ,streaming: true // TODO
+      audio: false,
+      streaming: true // TODO
       // disableGl ?
     })
 
