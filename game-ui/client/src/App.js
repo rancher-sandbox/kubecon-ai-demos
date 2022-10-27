@@ -11,7 +11,7 @@ import RobotPlay from './components/RobotPlay.js'
 
 import EventTranslator from './EventTranslator.js'
 
-let waitText = 'Show "rock", "paper", "scissors" in order to start a count down and play against the computer!'
+let waitText = 'Show "rock", "paper", "scissors" in order to start!'
 
 function App() { 
     const [logs, setLog] = useState([])
