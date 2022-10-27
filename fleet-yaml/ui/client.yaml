@@ -36,7 +36,7 @@ spec:
           name: config
           subPath: config-override.json
         - mountPath: /usr/share/nginx/html/static/css/main.2e848bb9.css
-          name: config
+          name: css-override
           subPath: full.css
       volumes:
       - configMap:
