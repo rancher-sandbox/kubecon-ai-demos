@@ -89,6 +89,9 @@ spec:
               name: tmp
             - mountPath: /root
               name: home
+            - mountPath: /root/.xinitrc
+              name: xconfig
+              subPath: .xinitrc
       dnsPolicy: ClusterFirst
       terminationGracePeriodSeconds: 5
       volumes:
@@ -100,6 +103,13 @@ spec:
           emptyDir: {}
         - name: home
           emptyDir: {}
+        - configMap:
+            defaultMode: 0777
+            name: xconfig
+            items:
+              - key: .xinitrc
+                path: .xinitrc
+          name: xconfig
   capacity: 1
   discoveryHandler:
     name: display
