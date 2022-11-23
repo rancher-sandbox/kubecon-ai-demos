@@ -28,21 +28,6 @@ spec:
           path: /var/lib/akri
         name: discovery-handlers
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: xconfig
-data:
-  .xinitrc: |- 
-    #!/bin/bash
-    set -x
-    
-    xset -dpms
-    xset s off
-    xset s noblank
-    xhost +
-    exec startlxde
----
 apiVersion: akri.sh/v0
 kind: Configuration
 metadata:
@@ -91,7 +76,7 @@ spec:
           env:
             - name: DBUS_SESSION_BUS_ADDRESS
               value: unix:path=/run/user/0/bus
-          image: registry.opensuse.org/home/atgracey/wallboardos/15.4/wallboardos:lxde-15.4
+          image: registry.opensuse.org/home/atgracey/wallboardos/15.4/x11
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: true
@@ -104,9 +89,6 @@ spec:
               name: tmp
             - mountPath: /root
               name: home
-            - mountPath: /root/.xinitrc
-              name: xconfig
-              subPath: .xinitrc
       dnsPolicy: ClusterFirst
       terminationGracePeriodSeconds: 5
       volumes:
@@ -118,13 +100,6 @@ spec:
           emptyDir: {}
         - name: home
           emptyDir: {}
-        - configMap:
-            defaultMode: 0777
-            name: xconfig
-            items:
-              - key: .xinitrc
-                path: .xinitrc
-          name: xconfig
   capacity: 1
   discoveryHandler:
     name: display
