@@ -8,6 +8,10 @@ spec:
   brokerSpec:
     brokerPodSpec:
       containers:
+      - name: rps-move-detector
+        image: sanjayrancher/rps-move-detector
+        imagePullPolicy: IfNotPresent
+        args: ['rtsp://localhost:8554/rps', 'nats://nats.nats:4222']
       - image: atgracey/gstreamer:stable
         name: udev-camera-broker
         imagePullPolicy: IfNotPresent
@@ -42,10 +46,6 @@ spec:
       port: 8554
       protocol: TCP
       targetPort: 8554
-    - name: hls
-      port: 8888
-      protocol: TCP
-      targetPort: 8888
     type: ClusterIP
   discoveryHandler:
     discoveryDetails: |
@@ -159,7 +159,7 @@ data:
     # RTMP parameters
 
     # Disable support for the RTMP protocol.
-    rtmpDisable: no
+    rtmpDisable: yes
     # Address of the RTMP listener. This is needed only when encryption is "no" or "optional".
     rtmpAddress: :1935
     # Encrypt connections with TLS (RTMPS).
@@ -179,7 +179,7 @@ data:
     # HLS parameters
 
     # Disable support for the HLS protocol.
-    hlsDisable: no
+    hlsDisable: yes
     # Address of the HLS listener.
     hlsAddress: :8888
     # By default, HLS is generated only when requested by a user.
@@ -238,8 +238,6 @@ data:
     # another entry.
     paths:
       cam:
-        # runOnInit: ffmpeg -f v4l2 -i /dev/video0 -pix_fmt yuv420p -preset ultrafast -b:v 600k -c:v h264 -c:a aac -f rtsp rtsp://localhost:8554/rps
-        # runOnInit: gst-launch-1.0 rtspclientsink name=s location=rtsp://localhost:8554/mystream filesrc location=/dev/video0 ! qtdemux name=d d.video_0 ! queue ! s.sink_0 d.audio_0 ! queue ! s.sink_1
         runOnInit: gst-launch-1.0 -v v4l2src device=/dev/video0 ! queue ! rtspclientsink location=rtsp://localhost:8554/rps
         runOnInitRestart: yes
       rps:
