@@ -76,7 +76,7 @@ spec:
           env:
             - name: DBUS_SESSION_BUS_ADDRESS
               value: unix:path=/run/user/0/bus
-          image: registry.opensuse.org/home/atgracey/wallboardos/15.4/x11:latest
+          image: registry.opensuse.org/home/atgracey/wallboardos/15.4/x11:no-ob
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: true
