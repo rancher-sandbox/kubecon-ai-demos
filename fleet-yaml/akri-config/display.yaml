@@ -41,7 +41,7 @@ data:
     xset s off
     xset s noblank
     xhost +
-    exec firefox --kiosk http://game-client.game:8080
+    exec chromium --kiosk http://game-client.game:8080
 ---
 apiVersion: akri.sh/v0
 kind: Configuration
@@ -62,7 +62,7 @@ spec:
           env:
             - name: DBUS_SESSION_BUS_ADDRESS
               value: unix:path=/run/user/0/bus
-          image: registry.opensuse.org/home/atgracey/wallboardos/15.4/x11:ff
+          image: registry.opensuse.org/home/atgracey/wallboardos/15.4/x11:chrome
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: true
