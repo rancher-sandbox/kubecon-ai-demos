@@ -13,9 +13,10 @@ spec:
         imagePullPolicy: IfNotPresent
         args: ['rtsp://localhost:8554/rps', 'nats://nats.nats:4222']
       - image: atgracey/gstreamer:stable
-        name: udev-camera-broker
+        name: udev-camera
         imagePullPolicy: IfNotPresent
-        command: ['/rtsp-simple-server']
+        command: ['bash']
+        args: ['-c','gst-launch-1.0 -v v4l2src device=/dev/video0 ! queue ! rtspclientsink location=rtsp://localhost:8554/rps']
         resources:
           limits:
             '{{PLACEHOLDER}}': "1"
@@ -27,6 +28,17 @@ spec:
             memory: 100Mi
         securityContext:
           privileged: true
+      - image: atgracey/gstreamer:stable
+        name: rtsp-simple-server
+        imagePullPolicy: IfNotPresent
+        command: ['/rtsp-simple-server']
+        resources:
+          limits:
+            cpu: 300m
+            memory: 300Mi
+          requests:
+            cpu: 100m
+            memory: 100Mi
         volumeMounts:
           - mountPath: /rtsp-simple-server.yml
             name: rtsp-simple-server
@@ -238,6 +250,6 @@ data:
     # another entry.
     paths:
       cam:
-        runOnInit: gst-launch-1.0 -v v4l2src device=/dev/video0 ! queue ! rtspclientsink location=rtsp://localhost:8554/rps
-        runOnInitRestart: yes
+        #runOnInit: gst-launch-1.0 -v v4l2src device=/dev/video0 ! queue ! rtspclientsink location=rtsp://localhost:8554/rps
+        #runOnInitRestart: yes
       rps:
