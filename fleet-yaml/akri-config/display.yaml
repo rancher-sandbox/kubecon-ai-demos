@@ -28,21 +28,6 @@ spec:
           path: /var/lib/akri
         name: discovery-handlers
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: xconfig
-data:
-  .xinitrc: |-
-    #!/bin/bash
-    set -x
-
-    xset -dpms
-    xset s off
-    xset s noblank
-    xhost +
-    exec icewm-session-lite
----
 apiVersion: akri.sh/v0
 kind: Configuration
 metadata:
@@ -88,13 +73,6 @@ spec:
           emptyDir: {}
         - name: home
           emptyDir: {}
-        - configMap:
-            defaultMode: 0777
-            name: xconfig
-            items:
-              - key: .xinitrc
-                path: .xinitrc
-          name: xconfig
   capacity: 1
   discoveryHandler:
     name: display
