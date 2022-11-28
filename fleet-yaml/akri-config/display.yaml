@@ -55,16 +55,18 @@ spec:
         - name: wallboard
           args:
             - '-c'
-            - firefox --kiosk http://game-client.game:8080       
+            - firefox --kiosk $URL       
           command:
             - sh
           env:
+            - name: URL
+              value: http://game-client.game:8080 
             - name: DBUS_SESSION_BUS_ADDRESS
               value: unix:path=/run/user/0/bus
             - name: DISPLAY
               value: ':0'
           image: registry.opensuse.org/home/atgracey/wallboardos/15.4/firefox:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           securityContext:
             allowPrivilegeEscalation: true
             privileged: true
@@ -90,7 +92,7 @@ spec:
             - name: DBUS_SESSION_BUS_ADDRESS
               value: unix:path=/run/user/0/bus
           image: registry.opensuse.org/home/atgracey/wallboardos/15.4/x11:icewm
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           securityContext:
             allowPrivilegeEscalation: true
             privileged: true
