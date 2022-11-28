@@ -41,7 +41,7 @@ data:
     xset s off
     xset s noblank
     xhost +
-    exec chromium --kiosk http://game-client.game:8080
+    exec icewm-session-lite
 ---
 apiVersion: akri.sh/v0
 kind: Configuration
@@ -52,6 +52,35 @@ spec:
   brokerSpec:
     brokerPodSpec:
       containers:
+        - name: wallboard
+          args:
+            - '-c'
+            - chromium http://game-client.game:8080 --start-fullscreen --disable-session-crashed-bubble
+              --disable-infobars --disable-new-profile-management -autoplay-policy=no-user-gesture-required
+              --remote-debugging-port=9222 --user-data-dir=/tmp/chrome/          
+          command:
+            - sh
+          env:
+            - name: DBUS_SESSION_BUS_ADDRESS
+              value: unix:path=/run/user/0/bus
+            - name: DISPLAY
+              value: ':0'
+          image: registry.opensuse.org/home/atgracey/wallboardos/15.4/chromium:withgtk
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: true
+            privileged: true
+            readOnlyRootFilesystem: false
+            runAsUser: 1000
+          volumeMounts:
+            - mountPath: /tmp
+              name: tmp
+            - mountPath: /home/user/
+              name: home
+            - mountPath: /root/
+              name: home
+            - mountPath: /run/user
+              name: runuser
         - name: x11
           args:
             - '-c'
@@ -62,7 +91,7 @@ spec:
           env:
             - name: DBUS_SESSION_BUS_ADDRESS
               value: unix:path=/run/user/0/bus
-          image: registry.opensuse.org/home/atgracey/wallboardos/15.4/x11:chrome
+          image: registry.opensuse.org/home/atgracey/wallboardos/15.4/x11:icewm
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: true
