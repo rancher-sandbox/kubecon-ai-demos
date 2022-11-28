@@ -81,9 +81,6 @@ spec:
               name: tmp
             - mountPath: /root
               name: home
-            - mountPath: /root/.xinitrc
-              name: xconfig
-              subPath: .xinitrc
       dnsPolicy: ClusterFirst
       terminationGracePeriodSeconds: 5
       volumes:
