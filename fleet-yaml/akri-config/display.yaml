@@ -56,8 +56,6 @@ spec:
           env:
             - name: URL
               value: http://game-client.game:8080 
-            - name: DBUS_SESSION_BUS_ADDRESS
-              value: unix:path=/run/user/0/bus
             - name: DISPLAY
               value: ':0'
           image: registry.opensuse.org/home/atgracey/wallboardos/15.4/firefox:latest
