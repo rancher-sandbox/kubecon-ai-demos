@@ -72,12 +72,7 @@ spec:
               name: home
             - mountPath: /root/
               name: home
-            - mountPath: /run/user
-              name: runuser
         - name: x11
-          env:
-            - name: DBUS_SESSION_BUS_ADDRESS
-              value: unix:path=/run/user/0/bus
           image: registry.opensuse.org/home/atgracey/wallboardos/15.4/x11:icewm
           imagePullPolicy: Always
           securityContext:
@@ -85,8 +80,6 @@ spec:
             privileged: true
             readOnlyRootFilesystem: false
           volumeMounts:
-            - mountPath: /run/user
-              name: runuser
             - mountPath: /tmp
               name: tmp
             - mountPath: /root
@@ -97,10 +90,6 @@ spec:
       dnsPolicy: ClusterFirst
       terminationGracePeriodSeconds: 5
       volumes:
-        - hostPath:
-            path: /run/user
-            type: Directory
-          name: runuser
         - name: tmp
           emptyDir: {}
         - name: home
