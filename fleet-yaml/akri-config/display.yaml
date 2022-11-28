@@ -55,9 +55,7 @@ spec:
         - name: wallboard
           args:
             - '-c'
-            - chromium http://game-client.game:8080 --start-fullscreen --disable-session-crashed-bubble
-              --disable-infobars --disable-new-profile-management -autoplay-policy=no-user-gesture-required
-              --remote-debugging-port=9222 --user-data-dir=/tmp/chrome/          
+            - firefox --kiosk http://game-client.game:8080       
           command:
             - sh
           env:
@@ -65,7 +63,7 @@ spec:
               value: unix:path=/run/user/0/bus
             - name: DISPLAY
               value: ':0'
-          image: registry.opensuse.org/home/atgracey/wallboardos/15.4/chromium:withgtk
+          image: registry.opensuse.org/home/atgracey/wallboardos/15.4/firefox:latest
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: true
