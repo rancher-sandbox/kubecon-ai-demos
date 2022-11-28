@@ -52,12 +52,7 @@ spec:
   brokerSpec:
     brokerPodSpec:
       containers:
-        - name: wallboard
-          args:
-            - '-c'
-            - firefox --kiosk $URL       
-          command:
-            - sh
+        - name: wallboard   
           env:
             - name: URL
               value: http://game-client.game:8080 
@@ -82,12 +77,6 @@ spec:
             - mountPath: /run/user
               name: runuser
         - name: x11
-          args:
-            - '-c'
-            - |
-              startx -- -nocursor
-          command:
-            - /bin/bash
           env:
             - name: DBUS_SESSION_BUS_ADDRESS
               value: unix:path=/run/user/0/bus
