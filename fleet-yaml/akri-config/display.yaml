@@ -61,9 +61,6 @@ spec:
           image: registry.opensuse.org/home/atgracey/wallboardos/15.4/firefox:latest
           imagePullPolicy: Always
           securityContext:
-            allowPrivilegeEscalation: true
-            privileged: true
-            readOnlyRootFilesystem: false
             runAsUser: 1000
           volumeMounts:
             - mountPath: /tmp
