@@ -55,7 +55,7 @@ spec:
             - mountPath: /root/
               name: home
         - name: x11
-          image: registry.opensuse.org/home/atgracey/wallboardos/15.4/x11:icewm
+          image: registry.opensuse.org/home/atgracey/x11/containerfile/bci-x11:icewm
           imagePullPolicy: Always
           securityContext:
             allowPrivilegeEscalation: true
