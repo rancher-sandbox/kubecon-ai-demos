@@ -1,33 +1,3 @@
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: display-discover-daemonset
-spec:
-  selector:
-    matchLabels:
-      name: display-discover
-  template:
-    metadata:
-      labels:
-        name: display-discover
-    spec:
-      containers:
-      - env:
-        - name: DISCOVERY_HANDLERS_DIRECTORY
-          value: /var/lib/akri
-        image: atgracey/display-discover:latest
-        imagePullPolicy: IfNotPresent
-        name: display-discover
-        securityContext:
-          privileged: true
-        volumeMounts:
-        - mountPath: /var/lib/akri
-          name: discovery-handlers
-      volumes:
-      - hostPath:
-          path: /var/lib/akri
-        name: discovery-handlers
----
 apiVersion: akri.sh/v0
 kind: Configuration
 metadata:
@@ -75,4 +45,7 @@ spec:
           emptyDir: {}
   capacity: 1
   discoveryHandler:
-    name: display
+    discoveryDetails: |
+      udevRules:
+      - SUBSYSTEM=="drm", ATTR{status}=="connected"
+    name: udev
