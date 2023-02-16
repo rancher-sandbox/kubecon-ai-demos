@@ -19,11 +19,9 @@ spec:
         args: ['-c','gst-launch-1.0 -v v4l2src device=/dev/video0 ! queue ! rtspclientsink location=rtsp://localhost:8554/rps']
         resources:
           limits:
-            '{{PLACEHOLDER}}': "1"
             cpu: 300m
             memory: 300Mi
           requests:
-            '{{PLACEHOLDER}}': "1"
             cpu: 100m
             memory: 100Mi
         securityContext:
