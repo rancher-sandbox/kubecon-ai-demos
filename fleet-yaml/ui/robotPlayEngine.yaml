@@ -16,5 +16,5 @@ spec:
       containers:
       - name: generate-move
         imagePullPolicy: IfNotPresent
-        image: sanjayrancher/rps-generate-move
+        image: atgracey/rps-generate-move:stable
         args: ['nats://nats.nats:4222']

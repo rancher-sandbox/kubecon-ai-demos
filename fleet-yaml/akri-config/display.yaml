@@ -13,8 +13,8 @@ spec:
               value: http://game-client.game:8080 
             - name: DISPLAY
               value: ':0'
-          image: registry.opensuse.org/home/atgracey/wallboardos/15.4/firefox:latest
-          imagePullPolicy: Always
+          image: atgracey/firefox:stable
+          imagePullPolicy: IfNotPresent
           securityContext:
             runAsUser: 1000
           volumeMounts:
@@ -25,8 +25,8 @@ spec:
             - mountPath: /root/
               name: home
         - name: x11
-          image: registry.opensuse.org/home/atgracey/x11/containerfile/bci-x11:latest
-          imagePullPolicy: Always
+          image: atgracey/x11:stable
+          imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: true
             privileged: true

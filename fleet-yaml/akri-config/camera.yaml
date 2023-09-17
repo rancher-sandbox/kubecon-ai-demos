@@ -9,7 +9,7 @@ spec:
     brokerPodSpec:
       containers:
       - name: rps-move-detector
-        image: sanjayrancher/rps-move-detector
+        image: atgracey/rps-move-detector:stable
         imagePullPolicy: IfNotPresent
         args: ['rtsp://localhost:8554/rps', 'nats://nats.nats:4222']
       - image: atgracey/gstreamer:stable
