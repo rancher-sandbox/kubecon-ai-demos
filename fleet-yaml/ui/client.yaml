@@ -36,11 +36,18 @@ spec:
         - mountPath: /usr/share/nginx/html/config.json
           name: config
           subPath: config-override.json
+        - mountPath: /usr/share/nginx/html/static/css/main.2e848bb9.css
+          name: css-override
+          subPath: full.css
       volumes:
       - configMap:
           defaultMode: 420
           name: ui-config
         name: config
+      - configMap:
+          defaultMode: 420
+          name: css-override
+        name: css-override
 ---
 apiVersion: v1
 kind: Service
